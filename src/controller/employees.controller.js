@@ -25,8 +25,8 @@ const employeesModel = require("../model/employees.model"),
               _id: existEmployee["id"],
               agent_id: existEmployee["agent_id"],
               email: existEmployee["email"],
-              password:existEmployee["password"],
-              name:existEmployee["name"],
+              password: existEmployee["password"],
+              name: existEmployee["name"],
               nickname: existEmployee["nickname"],
               country: existEmployee["country"],
               governorate: existEmployee["governorate"],
@@ -37,7 +37,7 @@ const employeesModel = require("../model/employees.model"),
             token = jwt.sign(body, "8M3GXT4SuuUNNAOi", {
               expiresIn: "1h",
             });
-          res.status(200).json({ type: true, token: body });
+          res.status(200).json({ type: true, token: token });
         }
       }
     } catch (error) {

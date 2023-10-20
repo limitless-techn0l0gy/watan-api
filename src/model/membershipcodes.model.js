@@ -8,6 +8,10 @@ const mongoose = require("mongoose"),
         required: true,
         unique: true,
       },
+      email: {
+        type: String,
+        unique: true,
+      },
     },
     { timestamps: true }
   ),
