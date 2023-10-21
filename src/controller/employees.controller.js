@@ -16,14 +16,18 @@ const employeesModel = require("../model/employees.model"),
         });
       } else {
         var existEmployee = await employeesModel
-          .findById({ _id: id })
-          .populate("agent_id");
+            .findById({ _id: id })
+            .populate("agent_id"),
+          serviceData = await serviceModel.findOne({
+            agent_id: existEmployee["agent_id"],
+          });
         if (existEmployee == null) {
           res.status(404).json({ type: "your account isn't exist" });
         } else {
           var body = {
               _id: existEmployee["id"],
               agent_id: existEmployee["agent_id"],
+              service: serviceData,
               email: existEmployee["email"],
               password: existEmployee["password"],
               name: existEmployee["name"],
