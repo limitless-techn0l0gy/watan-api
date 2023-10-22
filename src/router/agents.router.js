@@ -192,3 +192,4 @@ agentsRouter.post(
   deleteaccount
 );
 module.exports = agentsRouter;
+// install bcrypt body-parser cookie-session cors dotenv express express-validator jsonwebtoken mongoose nodemailer nodemon passport passport-google-oauth20

@@ -137,36 +137,39 @@ const employeesModel = require("../model/employees.model"),
         });
       } else {
         var employeeCheck = await employeesModel
-            .findOne({ email: email })
-            .populate("agent_id"),
-          agentCheck = employeeCheck["agent_id"],
-          serviceData = await serviceModel.findOne({
-            agent_id: agentCheck["id"],
-          }),
-          id = agentCheck["id"],
-          service = serviceData["id"],
-          employee = employeeCheck["id"];
-
+          .findOne({ email: email })
+          .populate("agent_id");
         if (employeeCheck != null) {
-          const isMatch = await bcrypt.compare(
-            password,
-            employeeCheck["password"]
-          );
-          if (isMatch) {
-            var data = {
-                id,
-                employee,
-                service,
-              },
-              token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                expiresIn: "1h",
-              });
-            res.status(200).json({ type: true, token: token });
+          var agentCheck = employeeCheck["agent_id"],
+            serviceData = await serviceModel.findOne({
+              agent_id: agentCheck["id"],
+            }),
+            id = agentCheck["id"],
+            service = serviceData["id"],
+            employee = employeeCheck["id"];
+          if (employeeCheck != null) {
+            const isMatch = await bcrypt.compare(
+              password,
+              employeeCheck["password"]
+            );
+            if (isMatch) {
+              var data = {
+                  id,
+                  employee,
+                  service,
+                },
+                token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
+                  expiresIn: "1h",
+                });
+              res.status(200).json({ type: true, token: token });
+            } else {
+              res.json({ type: "password not correct" });
+            }
           } else {
-            res.json({ type: "password not correct" });
+            res.json({ type: "agent not exist" });
           }
         } else {
-          res.json({ type: "agent not exist" });
+          res.json({ type: "employee not exist" });
         }
       }
     } catch (error) {
