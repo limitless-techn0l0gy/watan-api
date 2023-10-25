@@ -41,7 +41,7 @@ app.use("/MC", membershipcodesRouter);
 app.use("/agents", agentrouter);
 app.use("/employees", employeesRouter);
 app.use("/services", servicerouter);
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("The server is runing.....");
 });
 module.exports = app;
