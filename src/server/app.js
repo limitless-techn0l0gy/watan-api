@@ -26,11 +26,13 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({
-  origin: "https://watan.pro",
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://watan.pro",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "50mb" }));
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: false, limit: "50mb" }));
@@ -39,5 +41,8 @@ app.use("/MC", membershipcodesRouter);
 app.use("/agents", agentrouter);
 app.use("/employees", employeesRouter);
 app.use("/services", servicerouter);
+app.get("/", (req, res) => {
+  res.send("The server is runing.....");
+});
 module.exports = app;
 // https://www.youtube.com/watch?v=pdd04JzJrDw
