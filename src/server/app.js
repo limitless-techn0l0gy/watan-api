@@ -1,5 +1,6 @@
 require("dotenv").config();
-const express = require("express"),
+const defaultRoot = "/api",
+  express = require("express"),
   body_parser = require("body-parser"),
   cors = require("cors"),
   passport = require("passport"),
@@ -36,12 +37,12 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: false, limit: "50mb" }));
-app.use("/users", router);
-app.use("/MC", membershipcodesRouter);
-app.use("/agents", agentrouter);
-app.use("/employees", employeesRouter);
-app.use("/services", servicerouter);
-app.get("/api", (req, res) => {
+app.use(defaultRoot+"/users", router);
+app.use(defaultRoot+"/MC", membershipcodesRouter);
+app.use(defaultRoot+"/agents", agentrouter);
+app.use(defaultRoot+"/employees", employeesRouter);
+app.use(defaultRoot+"/services", servicerouter);
+app.get(defaultRoot, (req, res) => {
   res.send("The server is runing.....");
 });
 module.exports = app;
