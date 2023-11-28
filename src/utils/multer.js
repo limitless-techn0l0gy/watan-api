@@ -2,6 +2,7 @@ require("dotenv").config();
 const multer = require("multer"),
   serviceModel = require("../model/services.model"),
   { createFolder } = require("./fs"),
+  { hashString } = require("../functions/auth"),
   path = require("path"),
   storageImages = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -17,17 +18,14 @@ const multer = require("multer"),
         filePath = dirpath + name,
         url = `${process.env.SERVER_URL}/image/${MC}/${name}`,
         findService = await serviceModel.findOne({ _id: id });
-      req.body["filePath"] = filePath;
-      req.body["imageUrl"] = url;
-      req.body["imageName"] = name;
-      console.log(file.mimetype);
-      console.log(file.originalname);
-      console.log(file.fieldname);
+      req.body["filePath"] = await hashString(filePath);
+      req.body["imageUrl"] = await hashString(url);
+      req.body["imageName"] = await hashString(name);
       if (findService["images"].length <= 5) {
         req.body["startUpload"] = true;
         cb(null, name);
       } else {
-        cb("failed upload",false);
+        cb("failed upload", false);
         req.body["startUpload"] = false;
       }
     },
@@ -38,7 +36,7 @@ const multer = require("multer"),
           /\.(pdf|doc|txt|jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/
         )
       ) {
-        cb("failed upload",false);
+        cb("failed upload", false);
       }
       cb(null, true);
     },
@@ -59,6 +57,6 @@ const multer = require("multer"),
       cb(null, name);
     },
   }),
-  uploadImg = multer({ storage: storageImages ,limits:{fileSize:"5mb"}}),
+  uploadImg = multer({ storage: storageImages, limits: { fileSize: "5mb" } }),
   uploadBills = multer({ storage: storageBills }).single("billImage");
 module.exports = { uploadImg, uploadBills };
