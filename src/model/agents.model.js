@@ -1,10 +1,10 @@
 const mongoose = require("mongoose"),
   agentSchema = mongoose.Schema(
     {
-      MC_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "membershipcodes",
+      MC: {
+        type: String,
         required: true,
+        unique: true,
       },
       email: {
         type: String,
@@ -31,13 +31,8 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
-      currency: {
-        type: String,
-        required: true,
-      },
     },
     { timestamps: true }
   ),
   agentModel = mongoose.model("agents", agentSchema);
-// agentModel.watch().on("change", (data) => console.log(new Date(), data));
 module.exports = agentModel;

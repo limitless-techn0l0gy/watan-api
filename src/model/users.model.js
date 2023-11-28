@@ -1,11 +1,39 @@
 const mongoose = require("mongoose"),
+  buySchema = mongoose.Schema(
+    {
+      commerce_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "commerce",
+        required: true,
+      },
+      billImage: {
+        type: String,
+      },
+      points: {
+        type: Number,
+        required: true,
+      },
+      verify: {
+        type: Boolean,
+        required: true,
+      },
+      date: { type: Date, default: Date.now },
+    },
+    { timestamps: true }
+  ),
   userSchema = mongoose.Schema(
     {
-      firstName: {
+      userID: {
+        type: String,
+        lowercase: true,
+        unique: true,
+        required: true,
+      },
+      name: {
         type: String,
         required: true,
       },
-      lastName: {
+      nickname: {
         type: String,
         required: true,
       },
@@ -23,10 +51,6 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
-      date: {
-        type: String,
-        required: true,
-      },
       gender: {
         type: String,
         required: true,
@@ -39,14 +63,17 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
-      points: {
+      currency: {
         type: String,
         required: true,
       },
+      points: {
+        type: Number,
+        required: true,
+      },
+      commerce: [buySchema],
     },
     { timestamps: true }
   ),
   userModel = mongoose.model("users", userSchema);
-userModel.watch().on("change", (data) => console.log(new Date(), data));
 module.exports = userModel;
-

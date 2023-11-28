@@ -1,391 +1,510 @@
+var { code, token, body } = require("../functions/auth");
 const agentModel = require("../model/agents.model"),
+  model = agentModel,
   MCModel = require("../model/membershipcodes.model"),
   serviceModel = require("../model/services.model"),
-  jwt = require("jsonwebtoken"),
+  employeesModel = require("../model/employees.model"),
   validationResult = require("express-validator").validationResult,
-  bcrypt = require("bcrypt"),
+  { genToken } = require("../config/jwt"),
   { send, genCode } = require("../mail/mail"),
-  getAgentInfo = async (req, res) => {
-    try {
-      var { id } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        var existAgent = await agentModel.findById({ _id: id });
-        if (existAgent == null) {
-          res.status(404).json({ type: "your account isn't exist" });
-        } else {
-          var agentService = await serviceModel.findOne({
-            agent_id: existAgent["_id"],
-          });
-          var body = {
-              _id: existAgent["_id"],
-              service: agentService,
-              email: existAgent["email"],
-              password: existAgent["password"],
-              nameowner: existAgent["nameowner"],
-              nicknameowner: existAgent["nicknameowner"],
-              country: existAgent["country"],
-              governorate: existAgent["governorate"],
-              currency: existAgent["currency"],
-              createdAt: existAgent["createdAt"],
-              updatedAt: existAgent["updatedAt"],
-              __v: existAgent["__v"],
-            },
-            token = jwt.sign(body, "8M3GXT4SuuUNNAOi", {
-              expiresIn: "1h",
-            });
-          res.status(200).json({ type: true, token: token });
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
+  getLanguage = require("../localization/language"),
+  { auth, hashString, comparePassword } = require("../functions/auth"),
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "language": "ar"
     }
-  },
-  CheckMembershipCode = async (req, res) => {
-    try {
-      var { MC } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        var existMC = await MCModel.findOne({ MC });
-        if (existMC != null) {
-          var body = {
-              _id: existMC["_id"],
-              MC: existMC["MC"],
-              createdAt: existMC["createdAt"],
-              updatedAt: existMC["updatedAt"],
-              __v: existMC["__v"],
-            },
-            token = jwt.sign(body, "8M3GXT4SuuUNNAOi", {
-              expiresIn: "1h",
-            });
-          res.status(200).json({ type: true, token: token });
-        } else {
-          var body = {
-              type: "not exist",
-            },
-            token = jwt.sign(body, "8M3GXT4SuuUNNAOi", {
-              expiresIn: "1h",
-            });
-          res.status(200).json({ type: true, token: body });
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
-  },
-  register = async (req, res) => {
-    try {
-      var { email } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        existAgent = await agentModel.findOne({ email });
-        if (existAgent != null) {
-          res.json({ type: "your account is exist" });
-        } else {
-          var code = genCode(),
-            subject = "Create an account",
-            htmlTemplate = `Hello,<br />
-              - This is your verification code: 
-              <p style="font-weight:800; color: red;">${code}</p>`,
-            send = await send(email, subject, htmlTemplate),
-            msgStatus = send.response.includes("OK"),
-            resBody = {
-              email: email,
-              code: code,
-              msgStatus: msgStatus,
-            },
-            token = jwt.sign(resBody, "8M3GXT4SuuUNNAOi", { expiresIn: "1h" });
-          res.status(200).json({ type: true, token: token });
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
-  },
+  */
   verify = async (req, res) => {
-    try {
-      var {
-          MC_id,
-          email,
-          password,
-          businessName,
-          nameowner,
-          nicknameowner,
-          usersCount,
-          license,
-          discount,
-          earn,
-          country,
-          governorate,
-          services,
-          currency,
-          location,
-          firstNumber,
-          secondNumber,
-        } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
+    var { email } = req.body,
+      reqType = req.params.type,
+      lang = getLanguage(req.body.language),
+      validateData = validationResult(req).array();
+    auth(res, lang, validateData, { email, reqType }, async () => {
+      existAgent = await model.findOne({ email });
+      if (existAgent != null && reqType == "register") {
+        body = {
+          success: false,
+          msg: lang.exist,
+        };
+        code = 200;
       } else {
-        var existAgent = await agentModel.findOne({ email }),
-          checkPhoneNumberOne = await agentModel.findOne({ email }),
-          checkPhoneNumberTow = await agentModel.findOne({ email });
+        var msg_code = genCode(),
+          subject;
+        if (reqType == "register") {
+          subject = lang.register_msgSubject;
+        } else {
+          subject = lang.forgot_msgSubject;
+        }
+        var mail = await send(email, subject, msg_code, lang, "a"),
+          msgStatus = mail.response.includes("OK");
+        if (msgStatus) {
+          body = {
+            success: true,
+            email: email,
+            code: msg_code,
+          };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.ea,
+          };
+          code = 400;
+        }
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
+  /*
+    {
+      "MC": "watan_YWxhYXF1d",
+      "email": "alaaqutfa.work@gmail.com",
+    }
+  */
+  checkMC = async (req, res) => {
+    var { MC, email } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { MC, email }, async () => {
+      var existMC = await MCModel.findOne({ MC });
+      if (existMC != null && email == existMC["email"]) {
+        body = {
+          success: true,
+          _id: existMC["_id"],
+          MC: existMC["MC"],
+          email: existMC["email"],
+          name: existMC["name"],
+          createdAt: existMC["createdAt"],
+          updatedAt: existMC["updatedAt"],
+          __v: existMC["__v"],
+        };
+        code = 200;
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
+  /*
+    {
+      "MC": "agent52092YWxpQ",
+      "email": "ali@qutfa.com",
+      "password": "A123456a@",
+      "businessName": "Aquarius",
+      "desc": "Aquarius Aquarius Aquarius Aquarius Aquarius Aquarius Aquarius",
+      "nameowner": "Alaa",
+      "nicknameowner": "Qutfa",
+      "employees": "5",
+      "license": "sxd1234s",
+      "discount": "50",
+      "earn": "15",
+      "country": "Iraq",
+      "governorate": "Erbil",
+      "services": "Resturants",
+      "currency": "usd",
+      "location": "https://www.map.com",
+      "firstNumber": "+9647517960648",
+      "secondNumber": "+9647511796291",
+      "logo": [],
+      "language": "ar"
+    }
+  */
+  register = async (req, res) => {
+    var {
+        MC,
+        email,
+        password,
+        businessName,
+        desc,
+        nameowner,
+        nicknameowner,
+        employees,
+        license,
+        discount,
+        earn,
+        country,
+        governorate,
+        services,
+        currency,
+        location,
+        firstNumber,
+        secondNumber,
+        logo,
+      } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(
+      res,
+      lang,
+      validateData,
+      {
+        MC,
+        email,
+        password,
+        businessName,
+        desc,
+        nameowner,
+        nicknameowner,
+        employees,
+        license,
+        discount,
+        earn,
+        country,
+        governorate,
+        services,
+        currency,
+        location,
+        firstNumber,
+        secondNumber,
+        logo,
+      },
+      async () => {
+        var existAgent = await model.findOne({ email });
         if (existAgent != null) {
-          res.json({ type: "your account is exist" });
-        } else if (checkPhoneNumberOne != null) {
-          res.json({ type: "your first number is exist" });
-        } else if (checkPhoneNumberTow != null) {
-          res.json({ type: "your second number is exist" });
+          body = {
+            success: false,
+            msg: lang.exist,
+          };
+          code = 200;
         } else {
-          var salt = await bcrypt.genSalt(10),
-            hashpass = await bcrypt.hash(password, salt),
-            password = hashpass,
-            newAgent = await agentModel.create({
-              MC_id,
-              email,
-              password,
-              nameowner,
-              nicknameowner,
-              country,
-              governorate,
-              currency,
-            });
-          if (newAgent) {
-            var data = { id: newAgent["id"] },
-              newService = await serviceModel.create({
-                agent_id: data.id,
-                businessName,
-                firstNumber,
-                secondNumber,
-                services,
-                usersCount,
-                license,
-                location,
-                discount,
-                earn,
-              });
-            if (newService) {
-              data = {
-                id: newAgent["id"],
-                service: newService["id"],
-              };
-              var token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                expiresIn: "1h",
-              });
-              res.status(200).json({ type: true, token: token });
-            }
-          } else {
-            res.json({ type: "An error occurred when creating an account" });
-          }
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
-  },
-  Login = async (req, res) => {
-    try {
-      var { email, password } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json(errorValidate);
-      } else {
-        var agentCheck = await agentModel.findOne({ email: email }),
-          serviceData = await serviceModel.findOne({
-            agent_id: agentCheck["id"],
-          });
-        if (agentCheck != null && serviceData != null) {
-          const isMatch = await bcrypt.compare(
-            password,
-            agentCheck["password"]
-          );
-          if (isMatch) {
-            var data = {
-                id: agentCheck["id"],
-                service: serviceData["id"],
-              },
-              token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                expiresIn: "1h",
-              });
-            res.status(200).json({ type: true, token: token });
-          } else {
-            res.json({ type: "password not correct" });
-          }
-        } else {
-          res.json({ type: "agent not exist" });
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
-  },
-  updatepass = async (req, res) => {
-    try {
-      var { email, password, vpassword } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        var checkoldpassword = await agentModel.findOne({ email: email });
-        if (checkoldpassword != null) {
-          const isMatch = await bcrypt.compare(
-            password,
-            checkoldpassword["password"]
-          );
-          if (!isMatch) {
-            var salt = await bcrypt.genSalt(10),
-              hashpass = await bcrypt.hash(password, salt);
-            if (password == vpassword) {
+          var existMC = await MCModel.findOne({ MC });
+          console.log(existMC);
+          if (existMC != null && existMC["email"] == email) {
+            var existFirstNumber = await serviceModel.find({ firstNumber }),
+              existFirstNumber1 = await serviceModel.find({
+                firstNumber: secondNumber,
+              }),
+              existSecondNumber = await serviceModel.find({ secondNumber }),
+              existSecondNumber1 = await serviceModel.find({
+                secondNumber: firstNumber,
+              }),
+              existNumber =
+                existFirstNumber.length +
+                existFirstNumber1.length +
+                existSecondNumber.length +
+                existSecondNumber1.length;
+            if (existNumber == 0) {
+              var hashpass = await hashString(password);
               password = hashpass;
-              var updateAgent = await agentModel.findByIdAndUpdate(
-                { _id: checkoldpassword["id"] },
-                {
-                  password,
-                },
-                { new: true }
-              );
-              if (updateAgent != null) {
-                var data = {
-                    desc: "updated",
-                  },
-                  token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                    expiresIn: "1h",
-                  });
-                res.status(200).json({ type: true, token: token });
+              var newAgent = await model.create({
+                MC,
+                email,
+                password,
+                nameowner,
+                nicknameowner,
+                country,
+                governorate,
+              });
+              if (newAgent != null) {
+                var newService = await serviceModel.create({
+                    agent_id: newAgent["id"],
+                    businessName,
+                    desc,
+                    firstNumber,
+                    secondNumber,
+                    services,
+                    employees,
+                    license,
+                    location,
+                    discount,
+                    earn,
+                    currency,
+                    logo,
+                  }),
+                  usedMC = await MCModel.findOneAndUpdate(
+                    { MC },
+                    {
+                      agent_id: newAgent["id"],
+                    },
+                    { new: true }
+                  );
+                if ((newService != null, usedMC != null)) {
+                  body = {
+                    success: true,
+                    id: newAgent["id"],
+                    MC,
+                    service: newService["id"],
+                  };
+                  code = 200;
+                } else {
+                  body = {
+                    success: false,
+                    msg: lang.unknown_error,
+                  };
+                  code = 500;
+                }
+              } else {
+                await findOneAndDelete({ _id: newAgent["id"] });
+                body = {
+                  success: false,
+                  msg: lang.unknown_error,
+                };
+                code = 500;
               }
             } else {
-              res.json({ type: "passwords not equal" });
+              body = {
+                success: false,
+                msg: lang.exist_number,
+              };
+              code = 200;
             }
           } else {
-            res.json({ type: "please enter a new password" });
+            body = {
+              success: false,
+              msg: lang.mc_check,
+            };
+            code = 200;
           }
         }
+        console.log(body);
+        token = genToken(body);
+        res.status(code).json({ token });
       }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
+    );
   },
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com"
+    }
+  */
+  checkEmployees = async (req, res) => {
+    var { email } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { email }, async () => {
+      var existAgent = await model.findOne({ email });
+      if (existAgent != null) {
+        var agent_id = existAgent["id"],
+          serviceData = await serviceModel.findOne({ agent_id }),
+          uc = parseInt(serviceData["employees"]),
+          au = serviceData["availableEmployees"];
+        if (uc > au.length) {
+          body = {
+            success: true,
+          };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.employees_maximum,
+          };
+          code = 200;
+        }
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "password": "A123456a@",
+    }
+  */
+  login = async (req, res) => {
+    var { email, password } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { email, password }, async () => {
+      var agentCheck = await model.findOne({ email });
+      if (agentCheck != null) {
+        var serviceData = await serviceModel.findOne({
+            agent_id: agentCheck["id"],
+          }),
+          isMatch = await comparePassword(password, agentCheck["password"]);
+        if (isMatch && serviceData != null) {
+          body = {
+            success: true,
+            id: agentCheck["id"],
+            MC: agentCheck["MC"],
+            service: serviceData["id"],
+          };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.password_not_correct,
+          };
+          code = 400;
+        }
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "password": "A123456a@",
+    }
+  */
   forgot = async (req, res) => {
-    try {
-      var { email } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        existAgent = await agentModel.findOne({ email: email });
-        if (existAgent == null) {
-          res.json({ type: "your account is not exist" });
-        } else {
-          var code = genCode(),
-            subject = "Password reset request",
-            htmlTemplate = `Hello,<br />
-            - This is your verification code: 
-            <p style="font-weight:800; color: red;">${code}</p>`,
-            send = await send(email, subject, htmlTemplate),
-            msgStatus = send.response.includes("OK"),
-            resBody = {
-              email: email,
-              code: code,
-              msgStatus: msgStatus,
+    var { email, password } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { email, password }, async () => {
+      var oldPassword = await model.findOne({ email });
+      if (oldPassword != null) {
+        const isMatch = await comparePassword(
+          password,
+          oldPassword["password"]
+        );
+        if (!isMatch) {
+          var hashpass = await hashString(password);
+          password = hashpass;
+          var updateAgent = await model.findByIdAndUpdate(
+            { _id: oldPassword["id"] },
+            {
+              password,
             },
-            token = jwt.sign(resBody, "8M3GXT4SuuUNNAOi", { expiresIn: "1h" });
-          res.status(200).json({ type: true, token: token });
-        }
-      }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
-  },
-  employeeCheck = async (req, res) => {
-    try {
-      var { email } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        res.json({
-          type: "Wrong entry",
-          error: errorValidate,
-        });
-      } else {
-        var existAgent = await agentModel.findOne({ email: email });
-        if (existAgent != null) {
-          var agent_id = existAgent["id"],
-            serviceData = await serviceModel.findOne({ agent_id: agent_id }),
-            uc = parseInt(serviceData["usersCount"]),
-            au = serviceData["availableUsers"];
-          if (uc > au.length) {
-            var data = {
-                type: true,
-              },
-              token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                expiresIn: "1h",
-              });
-            res.status(200).json({ type: true, token: token });
+            { new: true }
+          );
+          if (updateAgent != null) {
+            body = {
+              success: true,
+              msg: lang.updated,
+            };
           } else {
-            res.json({ type: "max" });
+            body = {
+              success: false,
+              msg: lang.ce,
+            };
           }
         } else {
-          res.json({ type: "not exist" });
+          body = {
+            success: false,
+            msg: lang.used_password,
+          };
+        }
+        code = 200;
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
+  /*
+    {
+      "id": "6549f376000cd9fda4f85146",
+    }
+  */
+  getInfo = async (req, res) => {
+    var { id } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { id }, async () => {
+      var agentData = await model.findById({ _id: id });
+      if (agentData == null) {
+        body = { success: false, msg: lang.not_found };
+        code = 404;
+      } else {
+        var agentService = await serviceModel
+            .findOne({
+              agent_id: agentData["_id"],
+            })
+            .populate({ path: "availableEmployees" }),
+          agentMC = await MCModel.findOne({ agent_id: agentData["_id"] });
+        if (agentService != null && agentMC != null) {
+          body = {
+            success: true,
+            agent: agentData,
+            service: agentService,
+            mc: agentMC,
+          };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.unknown_error,
+          };
+          code = 500;
         }
       }
-    } catch (error) {
-      res.json({ type: "catch error", desc: error });
-    }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
   },
-  deleteaccount = async (req, res) => {
-    const { id } = req.body;
-    errorValidate = validationResult(req).array();
-    if (errorValidate.length > 0) {
-      res.json(errorValidate);
-    } else {
-      const deletedAgent = await agentModel.findByIdAndRemove(
-        { _id: id },
-        { new: true }
-      );
-      if (deletedAgent) {
-        res.json(deletedAgent);
+  deleteAccount = async (req, res) => {
+    var { id } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { id }, async () => {
+      var agentData = await model.findById({ _id: id });
+      if (agentData == null) {
+        body = { success: false, msg: lang.not_found };
+        code = 404;
       } else {
-        req.json({ type: "account not exist" });
+        var agentService = await serviceModel.findOne({
+            agent_id: agentData["_id"],
+          }),
+          agentMC = await MCModel.findOne({ agent_id: agentData["_id"] });
+        if (agentService != null && agentMC != null) {
+          var availableEmployees = agentService["availableEmployees"],
+            agentEmployees;
+          if (availableEmployees.length > 0) {
+            availableEmployees.forEach(async (id, index) => {
+              agentEmployees = await employeesModel.findOneAndDelete({
+                _id: id,
+              });
+              console.log(agentEmployees);
+            });
+          }
+          agentMC = await MCModel.findOneAndDelete({
+            agent_id: agentData["_id"],
+          });
+          agentService = await serviceModel.findOneAndDelete({
+            agent_id: agentData["_id"],
+          });
+          agentData = await model.findOneAndDelete({ _id: id });
+          body = {
+            success: true,
+            agentData,
+            agentService,
+            agentMC,
+            agentEmployees,
+          };
+          code = 200;
+        } else {
+          body = { success: false, msg: lang.unknown_error };
+          code = 500;
+        }
       }
-    }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
   };
+
 module.exports = {
-  getAgentInfo,
-  CheckMembershipCode,
-  register,
   verify,
-  Login,
-  updatepass,
+  checkMC,
+  register,
+  checkEmployees,
+  login,
   forgot,
-  employeeCheck,
-  deleteaccount,
+  getInfo,
+  deleteAccount,
 };
-/*
-try {
-} catch (error) {
-  res.json({ type: "catch error", desc: error});
-}
-*/

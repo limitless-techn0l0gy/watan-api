@@ -1,0 +1,29 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.card {
+  margin-top: 25px;
+  max-width: 500px !important;
+  min-width: 300px !important;
+  padding: 10px;
+}
+
+.nav-item {
+  cursor: pointer !important;
+}
+.nav-section {
+  width: 50%;
+}
+.progress {
+  width: 50%;
+}
+.list-group-item {
+  width: 90%;
+}
+.list-group,
+.list-group-item {
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+}

@@ -1,0 +1,36 @@
+var tur = {
+  server: "Sunucu çalışıyor ...",
+  language: "İngilizce",
+  ea: "Kimlik doğrulama başarısız oldu.Lütfen geçerli kimlik bilgileriyle giriş yapın.",
+  ce: "Lütfen bilgilerinizi kontrol edip tekrar deneyin",
+  exist: "Zaten var",
+  exist_number: "Telefon numaralarını kontrol edin",
+  unknown_error: "Beklenmedik bir şey oldu",
+  employees_maximum: "Çalışan sayısı maksimum",
+  images_maximum: "Görüntü sayısı maksimum",
+  image_type_error: "Girdiğin görüntü geçersiz",
+  used_password: "Lütfen daha önce kullanmadığınız bir şifre girin",
+  updated: "başarıyla güncellendi",
+  not_found: "Bulunamadı",
+  password_not_correct:
+    "Kimlik doğrulama başarısız oldu.Lütfen geçerli kimlik bilgileriyle giriş yapın.",
+  mc_check: "Üyelik kodunu kontrol edin",
+  register_msgSubject: "Yeni hesap oluştur",
+  forgot_msgSubject: "Parola Sıfırlama İsteği",
+  msgDesc: "- İşte doğrulama kodunuz:",
+  msgNote: "Lütfen bu kodu asla kimseyle paylaşmadığınızdan emin olun.",
+  privacy: "Gizlilik Politikası",
+  conditions: "Terimler & amp;Koşullar",
+  mc_msgSubject: "Üyelik kodu isteyin",
+  mc_msgDesc: "- İşte üyelik kodunuz:",
+  mc_change_msg:
+    "Bu e -posta için bir üyelik kodunuz var.Değiştirmek istiyorsanız, önce önceki kodu silmeli ve ardından yeni bir kod oluşturmalısınız.",
+  deleted: "Başarıyla silindi",
+  empty_services: "Üzgünüm, bu hizmet henüz mevcut değil",
+  saleMsg: "Başarılı bir şekilde satıldı, doğrulamayı bekliyor",
+  buyMsg: "Doğrulamayı bekleyen satın alma başarıyla tamamlandı",
+  tryagain: "tekrar deneyin",
+  bill_amount_error:
+    "Girdiğiniz fatura tutarı yanlış.Hesabınızı engellemek ve puanlarınızı kaybetmek için lütfen doğru numarayı girin.",
+};
+module.exports = tur;

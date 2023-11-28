@@ -1,94 +1,46 @@
 const employeesRouter = require("express").Router(),
   check = require("express-validator").check,
   {
-    getEmployeeInfo,
+    verify,
     register,
     login,
     forgot,
-    updatepass,
+    getInfo,
+    deleteAccount,
   } = require("../controller/employees.controller");
-// info
+// verify
 employeesRouter.post(
-  "/info",
-  check("id")
-    .not()
-    .isEmpty()
-    .isString()
-    .withMessage("Error: Please enter a valid id"),
-  getEmployeeInfo
+  "/verify/:type",
+  check("email").not().isEmpty().isEmail(),
+  check("language").not().isEmpty().isString(),
+  verify
 );
 // register
 employeesRouter.post(
   "/register",
-  check("email")
-    .not()
-    .isEmpty()
-    .isEmail()
-    .withMessage("Error: Please enter a valid email"),
-  check("agentEmail")
-    .not()
-    .isEmpty()
-    .isEmail()
-    .withMessage("Error: Please enter a valid agent email"),
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("The password must consist of 8 digits"),
-  check("name")
-    .not()
-    .isEmpty()
-    .isString()
-    .withMessage("Error: Please enter a valid name"),
-  check("nickname")
-    .not()
-    .isEmpty()
-    .isString()
-    .withMessage("Error: Please enter a valid nickname"),
-  check("country")
-    .not()
-    .isEmpty()
-    .isString()
-    .withMessage("Error: Please enter a country name"),
-  check("governorate")
-    .not()
-    .isEmpty()
-    .isString()
-    .withMessage("Error: Please enter a governorate name"),
+  check("email").not().isEmpty().isEmail(),
+  check("agentEmail").not().isEmpty().isEmail(),
+  check("password").isLength({ min: 8 }),
+  check("name").not().isEmpty().isString(),
+  check("nickname").not().isEmpty().isString(),
+  check("country").not().isEmpty().isString(),
+  check("governorate").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
   register
 );
 // login
 employeesRouter.post(
   "/login",
-  check("email")
-    .not()
-    .isEmpty()
-    .isEmail()
-    .withMessage("Error: Please enter a valid email"),
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("The password must consist of 8 digits"),
+  check("email").not().isEmpty().isEmail(),
+  check("password").isLength({ min: 8 }),
+  check("language").not().isEmpty().isString(),
   login
 );
 // forgot
 employeesRouter.post(
   "/forgot",
-  check("email")
-    .not()
-    .isEmpty()
-    .isEmail()
-    .withMessage("Error: Please enter a valid email"),
-  forgot
-);
-// forgot/updatepass
-employeesRouter.post(
-  "/forgot/update",
-  check("email")
-    .not()
-    .isEmpty()
-    .isEmail()
-    .withMessage("please enter a valid email"),
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("The password must consist of 8 digits"),
+  check("email").not().isEmpty().isEmail(),
+  check("password").isLength({ min: 8 }),
   check("vpassword")
     .isLength({ min: 8 })
     .custom((value, { req }) => {
@@ -97,8 +49,21 @@ employeesRouter.post(
       } else {
         throw "Erorr: Password validation";
       }
-    })
-    .withMessage("Please confirm your password"),
-  updatepass
+    }),
+  forgot
+);
+// info
+employeesRouter.post(
+  "/info",
+  check("id").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  getInfo
+);
+// delete
+employeesRouter.post(
+  "/delete",
+  check("id").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  deleteAccount
 );
 module.exports = employeesRouter;

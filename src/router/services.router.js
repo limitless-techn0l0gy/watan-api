@@ -1,39 +1,74 @@
 const serviceRouter = require("express").Router(),
+  isbase64 = require("is-base64"),
   check = require("express-validator").check,
+  { uploadImg } = require("../utils/multer"),
   {
-    upload,
-    deleteImg,
+    uploadImages,
+    getImages,
+    addImages,
+    deleteImages,
     getServices,
-  } = require("../controller/services.controller");
-
-// upload
+    sale,
+    buy,
+  } = require("../controller/services.controller"),
+  imagesPath = "/images";
 serviceRouter.post(
-  "/upload",
-  check("id").not().isEmpty().withMessage("Error: Please enter a valid id"),
-  check("images")
-    .not()
-    .isEmpty()
-    .isArray()
-    .custom((value) => {
-      const base64regex =
-        /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-      value.forEach((element) => {
-        if (base64regex.test(element) == false) {
-          throw "Error: images type";
-        }
-      });
-      return true;
-    })
-    .withMessage("Error: Please enter a valid images"),
-  upload
+  imagesPath + "/upload",
+  uploadImg.single("image"),
+  check("id").not().isEmpty().isString(),
+  check("MC").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  uploadImages
 );
-// upload/delete
+// /images/get :
 serviceRouter.post(
-  "/upload/delete",
-  check("id").not().isEmpty().withMessage("please enter id"),
-  deleteImg
+  imagesPath + "/get",
+  check("id").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  getImages
+);
+// /images/add :
+serviceRouter.post(
+  imagesPath + "/add",
+  check("id").not().isEmpty().isString(),
+  check("logo").not().isEmpty().isObject(),
+  check("images").not().isEmpty().isArray(),
+  check("language").not().isEmpty().isString(),
+  addImages
+);
+// /images/delete :
+serviceRouter.post(
+  imagesPath + "/delete",
+  check("id").not().isEmpty().isString(),
+  check("images").not().isEmpty().isArray(),
+  check("language").not().isEmpty().isString(),
+  deleteImages
 );
 // Get Services :
-serviceRouter.post("/getservices", getServices);
-
+// todo: check this
+serviceRouter.post(
+  "/get",
+  check("services").not().isEmpty().isString(),
+  check("country").not().isEmpty().isString(),
+  check("governorate").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  getServices
+);
+// Sale :
+serviceRouter.post(
+  "/sale",
+  check("id").not().isEmpty().isString(),
+  check("userID").not().isEmpty().isString(),
+  check("ta").not().isEmpty().isInt(),
+  check("language").not().isEmpty().isString(),
+  sale
+);
+// buy :
+serviceRouter.post(
+  "/buy",
+  check("serialNo").not().isEmpty().isString(),
+  check("ammount").not().isEmpty().isInt(),
+  check("language").not().isEmpty().isString(),
+  buy
+);
 module.exports = serviceRouter;

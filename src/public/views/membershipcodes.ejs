@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Watan - Membership codes :</title>
+    <link rel="stylesheet" href="/css/membershipcode.css" />
+    <link rel="stylesheet" href="/css//icons/all/all.min.css" />
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body class="bg-dark">
+    <div
+      class="container w-100 d-flex justify-content-center align-items-center flex-column"
+    >
+      <div class="card" style="width: 50%">
+        <div
+          class="card-img-top d-flex justify-content-center align-items-center mb-3 mt-3"
+        >
+          <img
+            src="../img/logo.png"
+            class="img-fluid"
+            width="200px"
+            alt="Watan agents logo"
+          />
+        </div>
+        <div class="card-body mb-3">
+          <h5 class="titleCard card-title">Watan Membership Codes:</h5>
+          <p class="descCard card-text">
+            Get your membership code now for free for the first year and
+            increase your profits and customers
+          </p>
+          <div>
+            <label for="site-lang" class="form-label"
+              ><i class="fa-solid fa-language text-primary"></i
+            ></label>
+            <select
+              id="site-lang"
+              class="form-select w-50"
+              name="site-language"
+            >
+              <option class="Change_site_language" value="not">
+                Change site language
+              </option>
+              <option class="agent_language_select_option_1" value="en">
+                English
+              </option>
+              <option class="agent_language_select_option_2" value="ar">
+                Arabic
+              </option>
+              <option class="agent_language_select_option_3" value="ku">
+                Kurdish
+              </option>
+              <option class="agent_language_select_option_4" value="tur">
+                Turkish
+              </option>
+            </select>
+          </div>
+        </div>
+        <nav class="card-body bg-dark">
+          <ul class="nav justify-content-center">
+            <li class="nav-item">
+              <a class="Create nav-link">Create</a>
+            </li>
+            <li class="nav-item">
+              <a class="Renew nav-link text-white">Renew</a>
+            </li>
+            <li class="nav-item">
+              <a class="Delete nav-link text-white">Delete</a>
+            </li>
+          </ul>
+        </nav>
+        <ul
+          class="list-group list-group-flush d-flex justify-content-center align-items-center flex-column mb-3"
+        >
+          <li class="list-group-item nav-section">
+            <div class="agent_createSuccess alert alert-success">
+              (When you order for the first time, you will get a free membership
+              code for one year)
+            </div>
+            <form id="formMC" method="post">
+              <div class="mb-3">
+                <label
+                  for="create-email"
+                  class="agent_email_label form-label text-white"
+                  >Agent email :</label
+                >
+                <input
+                  type="email"
+                  name="email"
+                  id="create-email"
+                  class="form-control data"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="create-businessName"
+                  class="agent_businessName_label form-label text-white"
+                  >Agent business name :</label
+                >
+                <input
+                  type="text"
+                  name="businessName"
+                  id="create-businessName"
+                  class="form-control data"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="create-lang"
+                  class="agent_language_select_label form-label text-white"
+                  >Language :</label
+                >
+                <select
+                  id="create-lang"
+                  class="form-select data"
+                  name="language"
+                  aria-label="Default select example"
+                >
+                  <option class="agent_language_select_option_1" value="en">
+                    English
+                  </option>
+                  <option class="agent_language_select_option_2" value="ar">
+                    Arabic
+                  </option>
+                  <option class="agent_language_select_option_3" value="ku">
+                    Kurdish
+                  </option>
+                  <option class="agent_language_select_option_4" value="tur">
+                    Turkish
+                  </option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                class="agent_submit_btn btn btn-primary text-white"
+              >
+                Submit
+              </button>
+            </form>
+          </li>
+          <li class="list-group-item nav-section d-none">
+            <div class="agent_createInfo alert alert-info">
+              (The cost of renewing for one year is $100, but if you renew for
+              two years you will get a 25% discount, meaning the cost becomes
+              $150 for two years)
+            </div>
+            <form id="formRenewMC" method="post">
+              <div class="mb-3">
+                <label
+                  for="email"
+                  class="agent_email_label form-label text-white"
+                  >Agent email :</label
+                >
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  class="form-control renewdata"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="Membership_code"
+                  class="agent_membership_label form-label text-white"
+                  >Agent Membership code :</label
+                >
+                <input
+                  type="text"
+                  name="MC"
+                  id="Membership_code"
+                  class="form-control renewdata"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="renew"
+                  class="agent_renew_label form-label text-white"
+                  >Renew Duration (/year) :</label
+                >
+                <input
+                  type="number"
+                  name="duration"
+                  id="renew"
+                  class="form-control renewdata"
+                  max="2"
+                  min="1"
+                  value="1"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="del-lang"
+                  class="agent_language_select_label form-label text-white"
+                  >Language :</label
+                >
+                <select
+                  id="del-lang"
+                  class="form-select renewdata"
+                  name="language"
+                  aria-label="Default select example"
+                >
+                  <option class="agent_language_select_option_1" value="en">
+                    English
+                  </option>
+                  <option class="agent_language_select_option_2" value="ar">
+                    Arabic
+                  </option>
+                  <option class="agent_language_select_option_3" value="ku">
+                    Kurdish
+                  </option>
+                  <option class="agent_language_select_option_4" value="tur">
+                    Turkish
+                  </option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                class="agent_submit_btn btn btn-primary text-white"
+              >
+                Submit
+              </button>
+              <!-- <button class="zaincash-btn">
+                <img
+                  style="vertical-align: middle"
+                  src="https://test.zaincash.iq/images/zaincash-ar.png"
+                  class="image-fluid"
+                />
+              </button> -->
+            </form>
+          </li>
+          <li class="list-group-item nav-section d-none">
+            <div class="agent_deleteWarning alert alert-warning">
+              (Warning: Deleting the current membership code means deleting your
+              work data records on the application. Please make sure before
+              doing this process)
+            </div>
+            <form id="formDeleteMC" method="post">
+              <div class="mb-3">
+                <label
+                  for="delete-email"
+                  class="agent_email_label form-label text-white"
+                  >Agent email :</label
+                >
+                <input
+                  type="email"
+                  name="email"
+                  id="delete-email"
+                  class="form-control deldata"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="delete-businessName"
+                  class="agent_membership_label form-label text-white"
+                  >Agent Membership code :</label
+                >
+                <input
+                  type="text"
+                  name="MC"
+                  id="delete-businessName"
+                  class="form-control deldata"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="businessName"
+                  class="agent_businessName_label form-label text-white"
+                  >Agent business name :</label
+                >
+                <input
+                  type="text"
+                  name="businessName"
+                  id="businessName"
+                  class="form-control deldata"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="del-lang"
+                  class="agent_language_select_label form-label text-white"
+                  >Language :</label
+                >
+                <select
+                  id="del-lang"
+                  class="form-select deldata"
+                  name="language"
+                  aria-label="Default select example"
+                >
+                  <option class="agent_language_select_option_1" value="en">
+                    English
+                  </option>
+                  <option class="agent_language_select_option_2" value="ar">
+                    Arabic
+                  </option>
+                  <option class="agent_language_select_option_3" value="ku">
+                    Kurdish
+                  </option>
+                  <option class="agent_language_select_option_4" value="tur">
+                    Turkish
+                  </option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                class="agent_submit_btn btn btn-primary text-white"
+              >
+                Submit
+              </button>
+            </form>
+          </li>
+        </ul>
+        <div
+          class="w-100 d-flex justify-content-center align-items-center flex-column"
+        >
+          <div class="mb-3 progress" style="display: none; opacity: 0">
+            <div
+              id="send-progress"
+              class="progress-bar"
+              role="progressbar"
+              style="width: 0%; height: 100%"
+              aria-valuenow="100"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <div class="msgData alert alert-success d-none" role="alert"></div>
+        </div>
+      </div>
+    </div>
+    <script src="../js/membershipcode.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

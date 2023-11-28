@@ -1,214 +1,288 @@
+var { code, token, body } = require("../functions/auth");
 const userModel = require("../model/users.model"),
+  model = userModel,
   validationResult = require("express-validator").validationResult,
-  bcrypt = require("bcrypt"),
+  { genToken } = require("../config/jwt"),
   { send, genCode } = require("../mail/mail"),
-  signup = async (req, res) => {
-    try {
-      var {
-          firstName,
-          lastName,
-          email,
-          phone,
-          password,
-          vpassword,
-          date,
-          gender,
-          country,
-          governorate,
-        } = req.body,
-        errorValidate = validationResult(req).array(),
-        emailCheck = await userModel.findOne({ email: email });
-      console.log(emailCheck);
-      if (errorValidate.length > 0) {
-        res.json(errorValidate);
+  getLanguage = require("../localization/language"),
+  { genUserID } = require("../functions/userid"),
+  { auth, hashString, comparePassword } = require("../functions/auth"),
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "language": "ar"
+    }
+  */
+  verify = async (req, res) => {
+    var { email } = req.body,
+      reqType = req.params.type,
+      lang = getLanguage(req.body.language),
+      validateData = validationResult(req).array();
+    auth(res, lang, validateData, { email, reqType }, async () => {
+      userExist = await model.findOne({ email });
+      if (userExist == null) {
+        body = {
+          success: false,
+          msg: lang.exist,
+        };
+        code = 200;
       } else {
-        if (emailCheck == null) {
-          if (password == vpassword) {
-            var code = genCode(),
-              subject = "Confirm your email",
-              htmlTemplate = `Hello <h2>${firstName} ${lastName}</h2>,
-          This is your verification code: 
-          <p style="font-weight:800;">${code}</p>`,
-              send = send(email, subject, htmlTemplate),
-              msgStatus = (await send).response.includes("OK"),
-              resBody = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone,
-                password: password,
-                date: date,
-                gender: gender,
-                country: country,
-                governorate: governorate,
-                code: code,
-                msgStatus: msgStatus,
-              };
-
-            res.json(resBody);
-          }
+        var msg_code = genCode(),
+          subject;
+        if (reqType == "register") {
+          subject = lang.register_msgSubject;
         } else {
-          res.json({ type: "Email already exists" });
+          subject = lang.forgot_msgSubject;
+        }
+        var mail = await send(email, subject, msg_code, lang, "u"),
+          msgStatus = mail.response.includes("OK");
+        if (msgStatus) {
+          body = {
+            success: true,
+            email: email,
+            code: msg_code,
+          };
+          code = 200;
+        } else {
+          body = {
+            msg: lang.ea,
+            success: false,
+          };
+          code = 400;
         }
       }
-    } catch (error) {
-      return res.json({ type: error });
-    }
+      token = genToken(body);
+      res.status(code).json({token});
+    });
   },
-  verify = async (req, res) => {
-    try {
-      var {
-        firstName,
-        lastName,
+  /*
+    {
+      "name":"",
+      "nickname":"",
+      "email":"",
+      "phone":"",
+      "password":"",
+      "gender":"",
+      "country":"",
+      "governorate":"",
+      "currency":"",
+      "points":""
+    }
+  */
+  register = async (req, res) => {
+    var {
+        name,
+        nickname,
         email,
         phone,
         password,
-        date,
         gender,
         country,
         governorate,
-        code,
-        vcode,
-      } = req.body;
-      if (code === vcode) {
-        var salt = await bcrypt.genSalt(10),
-          hashpass = await bcrypt.hash(password, salt),
-          errorValidate = validationResult(req).array();
-        if (errorValidate.length > 0) {
-          res.json(errorValidate);
+        currency,
+        points,
+      } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(
+      res,
+      lang,
+      validateData,
+      {
+        name,
+        nickname,
+        email,
+        phone,
+        password,
+        gender,
+        country,
+        governorate,
+        currency,
+        points,
+      },
+      async () => {
+        var existUser = await model.findOne({ email });
+        if (existUser != null) {
+          body = {
+            success: false,
+            msg: lang.exist,
+          };
+          code = 200;
         } else {
-          var points = "0";
-          password = hashpass;
-          const newUser = await userModel.create({
-            firstName,
-            lastName,
+          var userID = await genUserID(name, email),
+            hashPassword = await hashString(password);
+          password = hashPassword;
+          var newUser = await model.create({
+            userID,
+            name,
+            nickname,
             email,
             phone,
             password,
-            date,
             gender,
             country,
             governorate,
+            currency,
             points,
           });
-
-          res.json(newUser);
-        }
-      }
-    } catch (error) {
-      return res.json({ type: error });
-    }
-  },
-  sendMsg = async (req, res) => {
-    try {
-      var { email } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        console.log("error");
-        res.json(errorValidate);
-      } else {
-        var emailCheck = await userModel.findOne({ email: email });
-        if (emailCheck) {
-          var code = genCode(),
-            subject = "Confirm your email",
-            htmlTemplate = `This is your verification code:
-            <p style="font-weight:800;">${code}</p>`,
-            send = (await send(email, subject, htmlTemplate))
-              .response,
-            msgStatus = send.includes("OK"),
-            resBody = {
-              id: emailCheck["_id"],
-              firstName: emailCheck["firstName"],
-              lastName: emailCheck["lastName"],
-              email: email,
-              msgStatus: msgStatus,
-              code: code,
+          if (newUser != null) {
+            body = {
+              success: true,
+              id: newUser["id"],
             };
-          console.log(resBody);
-          res.json(resBody);
-        } else {
-          res.json({ type: "email not found" });
-        }
-      }
-    } catch (error) {
-      return res.json({ type: error });
-    }
-  },
-  updatepass = async (req, res) => {
-    try {
-      var { id, password, vpassword } = req.body,
-        errorValidate = validationResult(req).array();
-      if (errorValidate.length > 0) {
-        console.log("error");
-        res.json(errorValidate);
-      } else {
-        if (password == vpassword) {
-          var checkoldpass = await userModel.findById({ _id: id }),
-            isMatch = await bcrypt.compare(password, checkoldpass.password);
-          if (!isMatch) {
-            var salt = await bcrypt.genSalt(10),
-              hashpass = await bcrypt.hash(password, salt),
-              password = hashpass,
-              update = await userModel.findByIdAndUpdate(
-                { _id: id },
-                {
-                  password,
-                },
-                { new: true }
-              );
-            res.json(update);
+            code = 200;
           } else {
-            res.json({ type: "please enter a new password" });
+            body = {
+              success: false,
+              msg: lang.unknown_error,
+            };
+            code = 500;
+          }
+        }
+        token = genToken(body);
+        res.status(code).json({token});
+      }
+    );
+  },
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "password": "A123456a@",
+    }
+  */
+  login = async (req, res) => {
+    var { email, password } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { email, password }, async () => {
+      var userCheck = await model.findOne({ email });
+      if (userCheck != null) {
+        var isMatch = await comparePassword(password, userCheck["password"]);
+        if (isMatch) {
+          body = {
+            success: true,
+            id: userCheck["id"],
+          };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.password_not_correct,
+          };
+          code = 400;
+        }
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({token});
+    });
+  },
+  /*
+    {
+      "email": "alaaqutfa.work@gmail.com",
+      "password": "A123456a@",
+    }
+  */
+  forgot = async (req, res) => {
+    var { email, password } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { email, password }, async () => {
+      var oldPassword = await model.findOne({ email });
+      if (oldPassword != null) {
+        const isMatch = await comparePassword(
+          password,
+          oldPassword["password"]
+        );
+        if (!isMatch) {
+          var hashpass = await hashString(password);
+          password = hashpass;
+          var updateAgent = await model.findByIdAndUpdate(
+            { _id: oldPassword["id"] },
+            {
+              password,
+            },
+            { new: true }
+          );
+          if (updateAgent != null) {
+            body = {
+              success: true,
+              msg: lang.updated,
+            };
+          } else {
+            body = {
+              success: false,
+              msg: lang.ce,
+            };
           }
         } else {
-          return res.json({ type: "Passwords not equal" });
+          body = {
+            success: false,
+            msg: lang.used_password,
+          };
         }
-      }
-    } catch (error) {
-      return res.json({ type: error });
-    }
-  },
-  logIn = async (req, res) => {
-    try {
-      const { email, password } = req.body,
-        userData = await userModel.findOne({ email: email });
-      if (userData != null) {
-        const isMatch = await bcrypt.compare(password, userData.password);
-        if (isMatch) {
-          res.json(userData);
-        } else {
-          res.json({ type: "password not correct" });
-        }
+        code = 200;
       } else {
-        res.json({ type: "Email not found" });
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
       }
-    } catch (error) {
-      return res.json({ type: error });
-    }
+      token = genToken(body);
+      res.status(code).json({token});
+    });
   },
-  deleteUser = async (req, res) => {
-    const { id } = req.body;
-    errorValidate = validationResult(req).array();
-    if (errorValidate.length > 0) {
-      res.json(errorValidate);
-    } else {
-      const deletedUser = await userModel.findByIdAndRemove(
-        { _id: id },
-        { new: true }
-      );
-      if (deleteUser) {
-        res.json(deletedUser);
-      } else {
-        res.json({ type: "account not exist" });
-      }
+  /*
+    {
+      "id": "6549f376000cd9fda4f85146",
     }
+  */
+  getInfo = async (req, res) => {
+    var { id } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { id }, async () => {
+      var userData = await model.findById({ _id: id });
+      if (userData == null) {
+        body = { success: false, msg: lang.not_found };
+        code = 404;
+      } else {
+        body = {
+          success: true,
+          data: userData,
+        };
+        code = 200;
+      }
+      token = genToken(body);
+      res.status(code).json({token});
+    });
+  },
+  deleteAccount = async (req, res) => {
+    var { id } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { id }, async () => {
+      var userData = await model.findById({ _id: id });
+      if (userData == null) {
+        body = { success: false, msg: lang.not_found };
+        code = 404;
+      } else {
+        userData = await model.findOneAndDelete({ _id: id });
+        body = {
+          success: true,
+          data: lang.deleted,
+        };
+        code = 200;
+      }
+      token = genToken(body);
+      res.status(code).json({token});
+    });
   };
 
-module.exports = {
-  signup,
-  verify,
-  sendMsg,
-  updatepass,
-  logIn,
-  deleteUser,
-};
+module.exports = { verify, register, login, forgot, getInfo, deleteAccount };

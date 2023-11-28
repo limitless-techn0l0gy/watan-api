@@ -35,5 +35,16 @@ const mongoose = require("mongoose"),
     { timestamps: true }
   ),
   employeesModel = mongoose.model("employees", employeeschema);
-employeesModel.watch().on("change", (data) => console.log(new Date(), data));
 module.exports = employeesModel;
+/*
+  {
+    "agent_id":"",
+    "email":"",
+    "password":"",
+    "name":"",
+    "nickname":"",
+    "country":"",
+    "governorate":"",
+  }
+
+*/
