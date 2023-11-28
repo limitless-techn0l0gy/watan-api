@@ -29,8 +29,8 @@ const bcrypt = require("bcrypt"),
       hashpass = await bcrypt.hash(password, salt);
     return hashpass;
   },
-  comparePassword = async (requestPassword, password) => {
+  compareString = async (requestPassword, password) => {
     var isMatch = await bcrypt.compare(requestPassword, password);
     return isMatch;
   };
-module.exports = { code, body, token, auth, hashString, comparePassword };
+module.exports = { code, body, token, auth, hashString, compareString };

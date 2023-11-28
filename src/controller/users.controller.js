@@ -6,7 +6,7 @@ const userModel = require("../model/users.model"),
   { send, genCode } = require("../mail/mail"),
   getLanguage = require("../localization/language"),
   { genUserID } = require("../functions/userid"),
-  { auth, hashString, comparePassword } = require("../functions/auth"),
+  { auth, hashString, compareString } = require("../functions/auth"),
   /*
     {
       "email": "alaaqutfa.work@gmail.com",
@@ -157,7 +157,7 @@ const userModel = require("../model/users.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var userCheck = await model.findOne({ email });
       if (userCheck != null) {
-        var isMatch = await comparePassword(password, userCheck["password"]);
+        var isMatch = await compareString(password, userCheck["password"]);
         if (isMatch) {
           body = {
             success: true,
@@ -195,7 +195,7 @@ const userModel = require("../model/users.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var oldPassword = await model.findOne({ email });
       if (oldPassword != null) {
-        const isMatch = await comparePassword(
+        const isMatch = await compareString(
           password,
           oldPassword["password"]
         );

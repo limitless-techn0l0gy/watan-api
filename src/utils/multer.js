@@ -19,8 +19,8 @@ const multer = require("multer"),
         url = `${process.env.SERVER_URL}/image/${MC}/${name}`,
         findService = await serviceModel.findOne({ _id: id });
       req.body["filePath"] = await hashString(filePath);
-      req.body["imageUrl"] = await hashString(url);
-      req.body["imageName"] = await hashString(name);
+      req.body["imageUrl"] = url;
+      req.body["imageName"] = name;
       if (findService["images"].length <= 5) {
         req.body["startUpload"] = true;
         cb(null, name);

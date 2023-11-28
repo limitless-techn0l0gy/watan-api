@@ -8,7 +8,7 @@ const agentModel = require("../model/agents.model"),
   { genToken } = require("../config/jwt"),
   { send, genCode } = require("../mail/mail"),
   getLanguage = require("../localization/language"),
-  { auth, hashString, comparePassword } = require("../functions/auth"),
+  { auth, hashString, compareString } = require("../functions/auth"),
   /*
     {
       "email": "alaaqutfa.work@gmail.com",
@@ -324,7 +324,7 @@ const agentModel = require("../model/agents.model"),
         var serviceData = await serviceModel.findOne({
             agent_id: agentCheck["id"],
           }),
-          isMatch = await comparePassword(password, agentCheck["password"]);
+          isMatch = await compareString(password, agentCheck["password"]);
         if (isMatch && serviceData != null) {
           body = {
             success: true,
@@ -364,7 +364,7 @@ const agentModel = require("../model/agents.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var oldPassword = await model.findOne({ email });
       if (oldPassword != null) {
-        const isMatch = await comparePassword(
+        const isMatch = await compareString(
           password,
           oldPassword["password"]
         );
