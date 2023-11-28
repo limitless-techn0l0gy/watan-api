@@ -4,7 +4,7 @@ const agentModel = require("../model/agents.model"),
   jwt = require("jsonwebtoken"),
   validationResult = require("express-validator").validationResult,
   bcrypt = require("bcrypt"),
-  { sendverifyEmail, genCode } = require("../mail/verify.email"),
+  { send, genCode } = require("../mail/mail"),
   getAgentInfo = async (req, res) => {
     try {
       var { id } = req.body,
@@ -102,7 +102,7 @@ const agentModel = require("../model/agents.model"),
             htmlTemplate = `Hello,<br />
               - This is your verification code: 
               <p style="font-weight:800; color: red;">${code}</p>`,
-            send = await sendverifyEmail(email, subject, htmlTemplate),
+            send = await send(email, subject, htmlTemplate),
             msgStatus = send.response.includes("OK"),
             resBody = {
               email: email,
@@ -305,7 +305,7 @@ const agentModel = require("../model/agents.model"),
             htmlTemplate = `Hello,<br />
             - This is your verification code: 
             <p style="font-weight:800; color: red;">${code}</p>`,
-            send = await sendverifyEmail(email, subject, htmlTemplate),
+            send = await send(email, subject, htmlTemplate),
             msgStatus = send.response.includes("OK"),
             resBody = {
               email: email,

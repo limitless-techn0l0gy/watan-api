@@ -1,7 +1,7 @@
 const userModel = require("../model/users.model"),
   validationResult = require("express-validator").validationResult,
   bcrypt = require("bcrypt"),
-  { sendverifyEmail, genCode } = require("../mail/verify.email"),
+  { send, genCode } = require("../mail/mail"),
   signup = async (req, res) => {
     try {
       var {
@@ -29,7 +29,7 @@ const userModel = require("../model/users.model"),
               htmlTemplate = `Hello <h2>${firstName} ${lastName}</h2>,
           This is your verification code: 
           <p style="font-weight:800;">${code}</p>`,
-              send = sendverifyEmail(email, subject, htmlTemplate),
+              send = send(email, subject, htmlTemplate),
               msgStatus = (await send).response.includes("OK"),
               resBody = {
                 firstName: firstName,
@@ -113,7 +113,7 @@ const userModel = require("../model/users.model"),
             subject = "Confirm your email",
             htmlTemplate = `This is your verification code:
             <p style="font-weight:800;">${code}</p>`,
-            send = (await sendverifyEmail(email, subject, htmlTemplate))
+            send = (await send(email, subject, htmlTemplate))
               .response,
             msgStatus = send.includes("OK"),
             resBody = {

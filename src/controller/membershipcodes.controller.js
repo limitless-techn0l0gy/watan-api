@@ -4,7 +4,8 @@ const MCModel = require("../model/membershipcodes.model"),
   jwt = require("jsonwebtoken"),
   validationResult = require("express-validator").validationResult,
   bcrypt = require("bcrypt"),
-  { sendverifyEmail, genCode } = require("../mail/verify.email"),
+  { send, genCode } = require("../mail/mail"),
+  render = async (req, res) => {},
   addMC = async (req, res) => {
     try {
       var { MC } = req.body,
@@ -43,4 +44,4 @@ const MCModel = require("../model/membershipcodes.model"),
       res.json({ type: "catch error", desc: error });
     }
   };
-module.exports = { addMC };
+module.exports = { render, addMC };

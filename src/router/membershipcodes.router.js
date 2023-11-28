@@ -1,7 +1,12 @@
 const membershipcodesRouter = require("express").Router(),
   check = require("express-validator").check,
-  { addMC } = require("../controller/membershipcodes.controller");
-// create
+  { render, addMC } = require("../controller/membershipcodes.controller");
+// Add :
+membershipcodesRouter.get(
+  "/create",
+  render
+);
+// Create :
 membershipcodesRouter.post(
   "/create",
   check("MC")

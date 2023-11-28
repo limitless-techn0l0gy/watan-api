@@ -4,7 +4,7 @@ const employeesModel = require("../model/employees.model"),
   jwt = require("jsonwebtoken"),
   validationResult = require("express-validator").validationResult,
   bcrypt = require("bcrypt"),
-  { sendverifyEmail, genCode } = require("../mail/verify.email"),
+  { send, genCode } = require("../mail/mail"),
   getEmployeeInfo = async (req, res) => {
     try {
       var { id } = req.body,
@@ -16,21 +16,17 @@ const employeesModel = require("../model/employees.model"),
         });
       } else {
         var existEmployee = await employeesModel
-            .findById({ _id: id })
-            .populate("agent_id"),
-          serviceData = await serviceModel.findOne({
-            agent_id: existEmployee["agent_id"],
-          });
+          .findById({ _id: id })
+          .populate("agent_id");
         if (existEmployee == null) {
           res.status(404).json({ type: "your account isn't exist" });
         } else {
           var body = {
               _id: existEmployee["id"],
               agent_id: existEmployee["agent_id"],
-              service: serviceData,
               email: existEmployee["email"],
-              password: existEmployee["password"],
-              name: existEmployee["name"],
+              password:existEmployee["password"],
+              name:existEmployee["name"],
               nickname: existEmployee["nickname"],
               country: existEmployee["country"],
               governorate: existEmployee["governorate"],
@@ -41,7 +37,7 @@ const employeesModel = require("../model/employees.model"),
             token = jwt.sign(body, "8M3GXT4SuuUNNAOi", {
               expiresIn: "1h",
             });
-          res.status(200).json({ type: true, token: token });
+          res.status(200).json({ type: true, token: body });
         }
       }
     } catch (error) {
@@ -137,39 +133,36 @@ const employeesModel = require("../model/employees.model"),
         });
       } else {
         var employeeCheck = await employeesModel
-          .findOne({ email: email })
-          .populate("agent_id");
+            .findOne({ email: email })
+            .populate("agent_id"),
+          agentCheck = employeeCheck["agent_id"],
+          serviceData = await serviceModel.findOne({
+            agent_id: agentCheck["id"],
+          }),
+          id = agentCheck["id"],
+          service = serviceData["id"],
+          employee = employeeCheck["id"];
+
         if (employeeCheck != null) {
-          var agentCheck = employeeCheck["agent_id"],
-            serviceData = await serviceModel.findOne({
-              agent_id: agentCheck["id"],
-            }),
-            id = agentCheck["id"],
-            service = serviceData["id"],
-            employee = employeeCheck["id"];
-          if (employeeCheck != null) {
-            const isMatch = await bcrypt.compare(
-              password,
-              employeeCheck["password"]
-            );
-            if (isMatch) {
-              var data = {
-                  id,
-                  employee,
-                  service,
-                },
-                token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
-                  expiresIn: "1h",
-                });
-              res.status(200).json({ type: true, token: token });
-            } else {
-              res.json({ type: "password not correct" });
-            }
+          const isMatch = await bcrypt.compare(
+            password,
+            employeeCheck["password"]
+          );
+          if (isMatch) {
+            var data = {
+                id,
+                employee,
+                service,
+              },
+              token = jwt.sign(data, "8M3GXT4SuuUNNAOi", {
+                expiresIn: "1h",
+              });
+            res.status(200).json({ type: true, token: token });
           } else {
-            res.json({ type: "agent not exist" });
+            res.json({ type: "password not correct" });
           }
         } else {
-          res.json({ type: "employee not exist" });
+          res.json({ type: "agent not exist" });
         }
       }
     } catch (error) {
@@ -195,7 +188,7 @@ const employeesModel = require("../model/employees.model"),
             htmlTemplate = `Hello,<br />
             - This is your verification code: 
             <p style="font-weight:800; color: red;">${code}</p>`,
-            send = await sendverifyEmail(email, subject, htmlTemplate),
+            send = await send(email, subject, htmlTemplate),
             msgStatus = send.response.includes("OK"),
             data = {
               email: email,

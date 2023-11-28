@@ -8,6 +8,7 @@ const router = require("express").Router(),
     logIn,
     deleteUser,
   } = require("../controller/users.controller");
+
 router.post(
   "/login",
   check("email")
