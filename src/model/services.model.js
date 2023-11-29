@@ -32,15 +32,13 @@ const mongoose = require("mongoose"),
       desc: {
         type: String,
       },
-      firstNumber: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-      secondNumber: {
-        type: String,
-        unique: true,
-      },
+      numbers: [
+        {
+          number: { type: String, required: true, unique: true },
+          contact: { type: String, required: true, default: "Call" },
+          verify: { type: Boolean, required: true, default: false },
+        },
+      ],
       services: {
         type: String,
         required: true,

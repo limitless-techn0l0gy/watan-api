@@ -134,8 +134,7 @@ const agentModel = require("../model/agents.model"),
         services,
         currency,
         location,
-        firstNumber,
-        secondNumber,
+        numbers,
         logo,
       } = req.body,
       validateData = validationResult(req).array(),
@@ -161,8 +160,7 @@ const agentModel = require("../model/agents.model"),
         services,
         currency,
         location,
-        firstNumber,
-        secondNumber,
+        numbers,
         logo,
       },
       async () => {
@@ -175,22 +173,17 @@ const agentModel = require("../model/agents.model"),
           code = 200;
         } else {
           var existMC = await MCModel.findOne({ MC });
-          console.log(existMC);
           if (existMC != null && existMC["email"] == email) {
-            var existFirstNumber = await serviceModel.find({ firstNumber }),
-              existFirstNumber1 = await serviceModel.find({
-                firstNumber: secondNumber,
-              }),
-              existSecondNumber = await serviceModel.find({ secondNumber }),
-              existSecondNumber1 = await serviceModel.find({
-                secondNumber: firstNumber,
-              }),
-              existNumber =
-                existFirstNumber.length +
-                existFirstNumber1.length +
-                existSecondNumber.length +
-                existSecondNumber1.length;
-            if (existNumber == 0) {
+            var checkServices = await serviceModel.find(),
+              numbersCount = 0;
+            numbers.forEach((value) => {
+              checkServices.forEach((service) => {
+                service["numbers"].forEach((phone) => {
+                  if (phone["number"] == value["number"]) numbersCount++;
+                });
+              });
+            });
+            if (numbersCount == 0) {
               var hashpass = await hashString(password);
               password = hashpass;
               var newAgent = await model.create({
@@ -207,8 +200,7 @@ const agentModel = require("../model/agents.model"),
                     agent_id: newAgent["id"],
                     businessName,
                     desc,
-                    firstNumber,
-                    secondNumber,
+                    numbers,
                     services,
                     employees,
                     license,
@@ -364,10 +356,7 @@ const agentModel = require("../model/agents.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var oldPassword = await model.findOne({ email });
       if (oldPassword != null) {
-        const isMatch = await compareString(
-          password,
-          oldPassword["password"]
-        );
+        const isMatch = await compareString(password, oldPassword["password"]);
         if (!isMatch) {
           var hashpass = await hashString(password);
           password = hashpass;

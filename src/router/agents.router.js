@@ -44,8 +44,7 @@ agentsRouter.post(
   check("services").not().isEmpty().isString(),
   check("currency").not().isEmpty().isString(),
   check("location").not().isEmpty().isURL(),
-  check("firstNumber").not().isEmpty().isLength({ min: 9 }),
-  check("secondNumber").not().isEmpty().isLength({ min: 9 }),
+  check("numbers").not().isEmpty().isArray(),
   check("logo").not().isEmpty().isObject(),
   check("language").not().isEmpty().isString(),
   register
