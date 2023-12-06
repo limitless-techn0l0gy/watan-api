@@ -109,34 +109,51 @@ const userModel = require("../model/users.model"),
           };
           code = 200;
         } else {
-          var userID = await genUserID(name, email),
-            hashPassword = await hashString(password);
-          password = hashPassword;
-          var newUser = await model.create({
-            userID,
-            name,
-            nickname,
-            email,
-            phone,
-            password,
-            gender,
-            country,
-            governorate,
-            currency,
-            points,
-          });
-          if (newUser != null) {
+          var checkPhone = await model.find(),
+            existPhone = false;
+          if (checkPhone != null && checkPhone.length > 0) {
+            checkPhone.forEach((value, index, array) => {
+              if (value["phone"]["number"] == phone["number"]) {
+                existPhone = true;
+              }
+            });
+          }
+          if (existPhone == true) {
             body = {
-              success: true,
-              id: newUser["id"],
+              success: false,
+              msg: lang.exist_number,
             };
             code = 200;
           } else {
-            body = {
-              success: false,
-              msg: lang.unknown_error,
-            };
-            code = 500;
+            var userID = await genUserID(name, email),
+              hashPassword = await hashString(password);
+            password = hashPassword;
+            var newUser = await model.create({
+              userID,
+              name,
+              nickname,
+              email,
+              phone,
+              password,
+              gender,
+              country,
+              governorate,
+              currency,
+              points,
+            });
+            if (newUser != null) {
+              body = {
+                success: true,
+                id: newUser["id"],
+              };
+              code = 200;
+            } else {
+              body = {
+                success: false,
+                msg: lang.unknown_error,
+              };
+              code = 500;
+            }
           }
         }
         token = genToken(body);

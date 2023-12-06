@@ -351,7 +351,6 @@ const employeesModel = require("../model/employees.model"),
                 });
               }
             });
-            console.log(deletedEmployee);
             var _id = agentService["id"];
             agentService = await serviceModel.findByIdAndUpdate(
               { _id },

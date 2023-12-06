@@ -46,11 +46,9 @@ const MCModel = require("../model/membershipcodes.model"),
         mc = f.substring(0, 15);
       }
       if (await checkMC(mc)) {
-        console.log(mc);
         return mc;
       }
       i++;
-      console.log(i);
     }
   },
   genExpire = async (duration) => {

@@ -42,7 +42,6 @@ const commerceModel = require("../model/commerce.model"),
       serialNo = name + "_" + code;
       check = await checkSerialNo(serialNo);
       if (check) {
-        console.log(serialNo);
         return serialNo;
       }
       i++;

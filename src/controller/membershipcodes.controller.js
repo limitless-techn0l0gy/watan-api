@@ -115,12 +115,10 @@ const MCModel = require("../model/membershipcodes.model"),
   };
 // setInterval(async () => {
 //   var checkMC = await MCModel.find();
-//   console.log(checkMC);
 //   if (checkMC != null) {
 //     checkMC.forEach(async (value) => {
 //       if (value["agent_id"] == undefined || value["agent_id"] == null) {
 //         await MCModel.findOneAndDelete({ email: value["email"] });
-//         console.log("Deleted Membership code " + value["email"]);
 //       }
 //     });
 //   }

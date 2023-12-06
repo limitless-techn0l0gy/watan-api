@@ -165,7 +165,6 @@ formMC.addEventListener("submit", (e) => {
     data = await res.json();
     var alert = document.querySelector(".msgData"),
       decoded = parseJwt(data.token);
-    console.log(decoded);
     if (decoded.success) {
       alert.classList.remove("alert-danger");
       alert.classList.add("alert-success");
@@ -182,7 +181,6 @@ formMC.addEventListener("submit", (e) => {
     }, 500);
   }, 2500);
 });
-console.log(formRenewMCData);
 formRenewMC.addEventListener("submit", (e) => {
   e.preventDefault();
   send_progress.parentElement.style.display = "block";
@@ -211,7 +209,6 @@ formRenewMC.addEventListener("submit", (e) => {
     data = await res.json();
     var alert = document.querySelector(".msgData"),
       decoded = parseJwt(data.token);
-    console.log(decoded);
     if (decoded.success) {
       alert.classList.remove("alert-danger");
       alert.classList.add("alert-success");
@@ -256,7 +253,6 @@ formDeleteMC.addEventListener("submit", (e) => {
     data = await res.json();
     var alert = document.querySelector(".msgData"),
       decoded = parseJwt(data);
-    console.log(data);
     if (decoded.success) {
       alert.classList.remove("alert-danger");
       alert.classList.add("alert-success");
@@ -275,7 +271,6 @@ formDeleteMC.addEventListener("submit", (e) => {
 });
 site_lang_select.addEventListener("change", () => {
   if (site_lang_select.value != "not") {
-    console.log(site_lang_select.value);
     aq_lang = localStorage.setItem("aq-apps-language", site_lang_select.value);
     window.location.reload();
   }

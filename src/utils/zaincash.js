@@ -56,11 +56,9 @@ zaincashRouter.get(
           "Content-Type": "application/json",
         },
       };
-    console.log(postData);
     request(requestOptions, (error, response) => {
       //  Getting the operation id
       const OperationId = JSON.parse(response.body).id;
-      console.log(JSON.parse(response.body));
       //  Redirect the user to ZC payment Page
       res.writeHead(302, {
         Location: requestUrl + OperationId,
@@ -78,9 +76,7 @@ zaincashRouter.get("redirect", (req, res) => {
       var decoded = jwt.verify(token, process.env.SECRET);
     } catch (err) {}
     if (decoded.status == "success") {
-      console.log("success");
     } else {
-      console.log("failed");
     }
   }
 });

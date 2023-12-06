@@ -255,7 +255,6 @@ const agentModel = require("../model/agents.model"),
             code = 200;
           }
         }
-        console.log(body);
         token = genToken(body);
         res.status(code).json({ token });
       }
@@ -459,7 +458,6 @@ const agentModel = require("../model/agents.model"),
               agentEmployees = await employeesModel.findOneAndDelete({
                 _id: id,
               });
-              console.log(agentEmployees);
             });
           }
           agentMC = await MCModel.findOneAndDelete({

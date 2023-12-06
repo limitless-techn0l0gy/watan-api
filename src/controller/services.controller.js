@@ -50,7 +50,6 @@ const serviceModel = require("../model/services.model"),
           };
           code = 404;
         }
-        console.log(body);
         token = genToken(body);
         res.status(code).json({ token });
       }
@@ -81,7 +80,6 @@ const serviceModel = require("../model/services.model"),
         };
         code = 404;
       }
-      console.log(body);
       token = genToken(body);
       res.status(code).json({ token });
     });
@@ -335,7 +333,6 @@ const serviceModel = require("../model/services.model"),
         };
         code = 404;
       }
-      console.log(body);
       token = genToken(body);
       res.status(code).json({ token });
     });

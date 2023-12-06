@@ -46,11 +46,9 @@ const userModel = require("../model/users.model"),
         userID = replace;
       }
       if (await checkUserID(userID)) {
-        console.log(userID);
         return userID;
       }
       i++;
-      console.log(i);
     }
   };
 

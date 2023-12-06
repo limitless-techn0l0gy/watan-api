@@ -9,7 +9,6 @@ const bcrypt = require("bcrypt"),
           msg: lang.ea,
           e: validate,
         };
-        console.log(validate);
         var token = genToken(body);
         res.status(422).json(token);
       } else {
