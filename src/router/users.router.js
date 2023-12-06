@@ -21,7 +21,7 @@ usersRouter.post(
   check("name").not().isEmpty().isString(),
   check("nickname").not().isEmpty().isString(),
   check("email").not().isEmpty().isEmail(),
-  check("phone").not().isEmpty().isLength({ min: 9 }),
+  check("phone").not().isEmpty().isObject(),
   check("password").isLength({ min: 8 }),
   check("gender").not().isEmpty().isString(),
   check("country").not().isEmpty().isString(),

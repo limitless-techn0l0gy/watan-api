@@ -44,8 +44,9 @@ const mongoose = require("mongoose"),
         unique: true,
       },
       phone: {
-        type: String,
-        required: true,
+        number: { type: String, required: true, unique: true },
+        contact: { type: String, required: true, default: "Call" },
+        verify: { type: Boolean, required: true, default: false },
       },
       password: {
         type: String,

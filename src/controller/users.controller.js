@@ -20,7 +20,7 @@ const userModel = require("../model/users.model"),
       validateData = validationResult(req).array();
     auth(res, lang, validateData, { email, reqType }, async () => {
       userExist = await model.findOne({ email });
-      if (userExist == null) {
+      if (userExist != null && reqType == "register") {
         body = {
           success: false,
           msg: lang.exist,
@@ -52,7 +52,7 @@ const userModel = require("../model/users.model"),
         }
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -140,7 +140,7 @@ const userModel = require("../model/users.model"),
           }
         }
         token = genToken(body);
-        res.status(code).json({token});
+        res.status(code).json({ token });
       }
     );
   },
@@ -179,7 +179,7 @@ const userModel = require("../model/users.model"),
         code = 404;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -195,10 +195,7 @@ const userModel = require("../model/users.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var oldPassword = await model.findOne({ email });
       if (oldPassword != null) {
-        const isMatch = await compareString(
-          password,
-          oldPassword["password"]
-        );
+        const isMatch = await compareString(password, oldPassword["password"]);
         if (!isMatch) {
           var hashpass = await hashString(password);
           password = hashpass;
@@ -235,7 +232,7 @@ const userModel = require("../model/users.model"),
         code = 404;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -260,7 +257,7 @@ const userModel = require("../model/users.model"),
         code = 200;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   deleteAccount = async (req, res) => {
@@ -281,7 +278,7 @@ const userModel = require("../model/users.model"),
         code = 200;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   };
 
