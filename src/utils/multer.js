@@ -9,7 +9,7 @@ const multer = require("multer"),
       var { MC } = req.body,
         dirpath = __dirname + "/../storages/images/" + MC;
       createFolder(dirpath);
-      req.body["dirpath"] = dirpath;
+      req.body["dirpath"] = hashString(dirpath);
       cb(null, path.join(__dirname, "../storages/images/" + MC));
     },
     filename: async (req, file, cb) => {

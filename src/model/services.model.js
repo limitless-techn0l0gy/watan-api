@@ -50,7 +50,7 @@ const mongoose = require("mongoose"),
       employees: {
         type: Number,
         default: 0,
-        required: true,
+        required: true, 
       },
       availableEmployees: [
         { type: mongoose.Schema.Types.ObjectId, ref: "employees" },

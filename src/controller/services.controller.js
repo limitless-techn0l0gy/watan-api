@@ -212,11 +212,11 @@ const serviceModel = require("../model/services.model"),
     });
   },
   getServices = async (req, res) => {
-    var { services } = req.body,
+    var { services, country, governorate } = req.body,
       lang = getLanguage(req.body.language),
       validateData = validationResult(req).array();
-    auth(res, lang, validateData, { services }, async () => {
-      var findServices = await model.find({ services });
+    auth(res, lang, validateData, { services, country, governorate }, async () => {
+      var findServices = await model.find({ services }).populate({agent_id});
       if (findServices != null && findServices.length > 0) {
         body = {
           success: true,

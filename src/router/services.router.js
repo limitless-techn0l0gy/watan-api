@@ -12,6 +12,7 @@ const serviceRouter = require("express").Router(),
     buy,
   } = require("../controller/services.controller"),
   imagesPath = "/images";
+// /images/upload :
 serviceRouter.post(
   imagesPath + "/upload",
   uploadImg.single("image"),

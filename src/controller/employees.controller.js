@@ -22,7 +22,7 @@ const employeesModel = require("../model/employees.model"),
       validateData = validationResult(req).array();
     auth(res, lang, validateData, { email, reqType }, async () => {
       existEmployee = await model.findOne({ email });
-      if (existEmployee != null) {
+      if (existEmployee != null && reqType == "register") {
         body = {
           success: false,
           msg: lang.exist,
@@ -54,7 +54,7 @@ const employeesModel = require("../model/employees.model"),
         }
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -157,7 +157,7 @@ const employeesModel = require("../model/employees.model"),
           code = 500;
         }
         token = genToken(body);
-        res.status(code).json({token});
+        res.status(code).json({ token });
       }
     );
   },
@@ -188,6 +188,7 @@ const employeesModel = require("../model/employees.model"),
             id: agentData["id"],
             employee: employeeCheck["id"],
             service: serviceData["id"],
+            success: true,
           };
           code = 200;
         } else {
@@ -205,7 +206,7 @@ const employeesModel = require("../model/employees.model"),
         code = 404;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -223,10 +224,7 @@ const employeesModel = require("../model/employees.model"),
     auth(res, lang, validateData, { email, password }, async () => {
       var oldPassword = await model.findOne({ email });
       if (oldPassword != null) {
-        const isMatch = await compareString(
-          password,
-          oldPassword["password"]
-        );
+        const isMatch = await compareString(password, oldPassword["password"]);
         if (!isMatch) {
           var hashpass = await hashString(password);
           password = hashpass;
@@ -263,7 +261,7 @@ const employeesModel = require("../model/employees.model"),
         code = 404;
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -317,7 +315,7 @@ const employeesModel = require("../model/employees.model"),
         }
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   },
   /*
@@ -375,7 +373,7 @@ const employeesModel = require("../model/employees.model"),
         }
       }
       token = genToken(body);
-      res.status(code).json({token});
+      res.status(code).json({ token });
     });
   };
 module.exports = { verify, register, login, forgot, getInfo, deleteAccount };
