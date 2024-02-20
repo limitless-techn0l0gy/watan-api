@@ -1,13 +1,12 @@
 const commerceModel = require("../model/commerce.model"),
   { genCode } = require("../mail/mail"),
-  translate = require("translate-google"),
-  genDiscount = (ammount, discount, appEarn) => {
-    var disc = parseInt(discount),
-      earn = parseInt(appEarn),
+  genDiscount = (ammount, discount, earnValue) => {
+    var intDisc = parseInt(discount),
+      disc = intDisc + earnValue,
       ta = parseInt(ammount),
-      totalDiscount = disc + earn,
-      taad = ta - (ta * totalDiscount) / 100,
-      earnings = (ta * earn) / 100;
+      totalDiscount = (ta * disc) / 100,
+      taad = ta - totalDiscount,
+      earnings = (ta * earnValue) / 100;
     return { taad, earnings };
   },
   checkSerialNo = async (serialNo) => {
@@ -18,28 +17,14 @@ const commerceModel = require("../model/commerce.model"),
       return false;
     }
   },
-  genSerialNo = async (n) => {
-    var filter,
-      name,
-      serialNo,
+  genSerialNo = async () => {
+    var serialNo,
       check,
       i = 0,
       code;
-    await translate(n, { to: "en" })
-      .then((res) => {
-        if (res != undefined) {
-          filter = res.replace(" ", "");
-        } else {
-          filter = "bill";
-        }
-        name = filter;
-      })
-      .catch((err) => {
-        name = "bill";
-      });
     while (i <= 1000) {
       code = genCode();
-      serialNo = name + "_" + code;
+      serialNo = "bill" + code;
       check = await checkSerialNo(serialNo);
       if (check) {
         return serialNo;
@@ -47,8 +32,25 @@ const commerceModel = require("../model/commerce.model"),
       i++;
     }
   },
-  genPoints = (n) => {
-    return Math.floor(n / 5000);
+  genPoints = (n, earnValue) => {
+    var points = (n * earnValue) / 100;
+    return points;
+  },
+  getCurrency = async (currency) => {
+    var cu = 1;
+    if (currency != "usd") {
+      var getReq = await fetch(`http://127.0.0.1:8080/app/cashing/${currency}`),
+        getRes = await getReq.json(),
+        cu = getRes["data"];
+      return cu;
+    }
+    return cu;
+  },
+  getAppEarnings = async () => {
+    var getReq = await fetch(`http://127.0.0.1:8080/app/cashing/earning`),
+      getRes = await getReq.json(),
+      earn = getRes["data"];
+    return earn;
   };
 
-module.exports = { genDiscount, genSerialNo, genPoints };
+module.exports = { genDiscount, genSerialNo, checkSerialNo, genPoints, getCurrency, getAppEarnings };

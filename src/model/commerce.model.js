@@ -24,10 +24,6 @@ const mongoose = require("mongoose"),
         type: Number,
         required: true,
       },
-      earn: {
-        type: Number,
-        required: true,
-      },
       taad: {
         type: Number,
         required: true,

@@ -63,7 +63,7 @@ if (aq_lang == null) {
     siteLang = en;
   }
 }
-trKeyList.forEach((className, index) => {
+trKeyList.forEach((className) => {
   var elements = document.querySelectorAll("." + className);
   elements.forEach((el) => {
     el.innerText = siteLang[className];

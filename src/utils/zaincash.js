@@ -44,10 +44,10 @@ zaincashRouter.get(
     };
     token = genZainCashToken(body);
     const postData = {
-        token: token,
-        merchantId: process.env.MERCHANTID,
-        lang: language,
-      },
+      token: token,
+      merchantId: process.env.MERCHANTID,
+      lang: language,
+    },
       requestOptions = {
         method: "POST",
         uri: initUrl,
@@ -74,7 +74,7 @@ zaincashRouter.get("redirect", (req, res) => {
   if (token) {
     try {
       var decoded = jwt.verify(token, process.env.SECRET);
-    } catch (err) {}
+    } catch (err) { }
     if (decoded.status == "success") {
     } else {
     }

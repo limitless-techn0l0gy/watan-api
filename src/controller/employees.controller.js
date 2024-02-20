@@ -9,12 +9,6 @@ const employeesModel = require("../model/employees.model"),
   { send, genCode } = require("../mail/mail"),
   getLanguage = require("../localization/language"),
   { auth, hashString, compareString } = require("../functions/auth"),
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "language": "ar"
-    }
-  */
   verify = async (req, res) => {
     var { email } = req.body,
       reqType = req.params.type,
@@ -57,34 +51,22 @@ const employeesModel = require("../model/employees.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "email": "",
-      "agentEmail": "",
-      "password": "",
-      "name": "",
-      "nickname": "",
-      "country": "",
-      "governorate": "",
-      "language": "ar"
-    }
-  */
   register = async (req, res) => {
-    var { email, agentEmail, password, name, nickname, country, governorate } =
-        req.body,
+    var { email, agentEmail, password, name, nickname } =
+      req.body,
       lang = getLanguage(req.body.language),
       validateData = validationResult(req).array();
     auth(
       res,
       lang,
       validateData,
-      { email, agentEmail, password, name, nickname, country, governorate },
+      { email, agentEmail, password, name, nickname },
       async () => {
         var agentData = await agentModel.findOne({ email: agentEmail });
         if (agentData != null && agentData["email"] != email) {
           var serviceData = await serviceModel.findOne({
-              agent_id: agentData["id"],
-            }),
+            agent_id: agentData["id"],
+          }),
             hashPassword = await hashString(password);
           password = hashPassword;
           var activeUsersList = [],
@@ -94,8 +76,6 @@ const employeesModel = require("../model/employees.model"),
               password,
               name,
               nickname,
-              country,
-              governorate,
             };
           if (serviceData["availableEmployees"].length < 5) {
             var existEmployee = await employeesModel.findOne({ email });
@@ -161,13 +141,6 @@ const employeesModel = require("../model/employees.model"),
       }
     );
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-      "language": "ar"
-    }
-  */
   login = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -176,8 +149,8 @@ const employeesModel = require("../model/employees.model"),
       var employeeCheck = await model.findOne({ email });
       if (employeeCheck != null) {
         var agentData = await agentModel.findOne({
-            _id: employeeCheck["agent_id"],
-          }),
+          _id: employeeCheck["agent_id"],
+        }),
           serviceData = await serviceModel.findOne({
             agent_id: employeeCheck["agent_id"],
           }),
@@ -209,14 +182,6 @@ const employeesModel = require("../model/employees.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-      "vpassword": "A123456a@",
-      "language": "en"
-    }
-  */
   forgot = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -264,12 +229,6 @@ const employeesModel = require("../model/employees.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-  {
-      "id": "654d38c4e44fa7ae452341cc",
-      "language": "ar"
-    }
-  */
   getInfo = async (req, res) => {
     var { id } = req.body,
       validateData = validationResult(req).array(),
@@ -285,8 +244,8 @@ const employeesModel = require("../model/employees.model"),
         });
         if (agentData != null) {
           var serviceData = await serviceModel.findOne({
-              agent_id: employeeData["agent_id"],
-            }),
+            agent_id: employeeData["agent_id"],
+          }),
             agentMC = await MCModel.findOne({
               agent_id: employeeData["agent_id"],
             });
@@ -318,12 +277,6 @@ const employeesModel = require("../model/employees.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-  {
-      "id": "654d38c4e44fa7ae452341cc",
-      "language": "ar"
-    }
-  */
   deleteAccount = async (req, res) => {
     var { id } = req.body,
       validateData = validationResult(req).array(),

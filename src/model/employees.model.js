@@ -23,14 +23,6 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
-      country: {
-        type: String,
-        required: true,
-      },
-      governorate: {
-        type: String,
-        required: true,
-      },
     },
     { timestamps: true }
   ),

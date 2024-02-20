@@ -19,10 +19,15 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
+      deleteOrder: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
       expireIn: {
         type: {
           y: { type: Number, required: true, default: d.getFullYear() + 1 },
-          m: { type: Number, required: true, default: d.getMonth() },
+          m: { type: Number, required: true, default: d.getMonth() + 1 },
           d: { type: Number, required: true, default: d.getDate() },
         },
       },

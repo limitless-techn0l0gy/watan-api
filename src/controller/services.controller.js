@@ -9,8 +9,7 @@ const serviceModel = require("../model/services.model"),
   { genToken } = require("../config/jwt"),
   getLanguage = require("../localization/language"),
   { auth } = require("../functions/auth"),
-  isbase64 = require("is-base64"),
-  { genDiscount, genSerialNo, genPoints } = require("../functions/commerce"),
+  { genDiscount, genSerialNo, checkSerialNo, genPoints, getAppEarnings } = require("../functions/commerce"),
   { removeFolder, removeFile } = require("../utils/fs"),
   uploadImages = async (req, res) => {
     var { MC, imageUrl, imageName, startUpload, filePath, dirpath } = req.body,
@@ -55,12 +54,6 @@ const serviceModel = require("../model/services.model"),
       }
     );
   },
-  /*
-    {
-      "id": "6558c0eb61b6d672eee6e3c1",
-      "language": "ar"
-    }
-  */
   getImages = async (req, res) => {
     var { id } = req.body,
       lang = getLanguage(req.body.language),
@@ -84,15 +77,6 @@ const serviceModel = require("../model/services.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "id": "654ce448fc13ae36ce2f9aca",
-      "images": [
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e/u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC/afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V/9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V/S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3/zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=",
-      ],
-      "language": "ar"
-    }
-  */
   addImages = async (req, res) => {
     var { id, logo, images } = req.body,
       lang = getLanguage(req.body.language),
@@ -214,7 +198,7 @@ const serviceModel = require("../model/services.model"),
       lang = getLanguage(req.body.language),
       validateData = validationResult(req).array();
     auth(res, lang, validateData, { services, country, governorate }, async () => {
-      var findServices = await model.find({ services }).populate({agent_id});
+      var findServices = await model.find({ services, country, governorate }).populate({ path: "agent_id" });
       if (findServices != null && findServices.length > 0) {
         body = {
           success: true,
@@ -245,7 +229,7 @@ const serviceModel = require("../model/services.model"),
           }),
           dbCustomers = parseInt(existService["customers"]),
           customers;
-        if (dbCustomers == undefined) {
+        if (dbCustomers == undefined || dbCustomers == null) {
           customers = 1;
         } else {
           customers = dbCustomers + 1;
@@ -257,27 +241,29 @@ const serviceModel = require("../model/services.model"),
         ) {
           var user_id = findUser["id"],
             discount = existService["discount"],
-            earn = existService["earn"],
-            { taad, earnings } = genDiscount(ta, discount, earn),
-            serialNo = await genSerialNo(existService["businessName"]);
+            earnValue = await getAppEarnings(),
+            { taad, earnings } = genDiscount(ta, discount, earnValue),
+            serialNo = await genSerialNo(),
+            checkSerial = await checkSerialNo(serialNo);
           if (checkSerial) {
             var newCommerce = await commerceModel.create({
               service_id: id,
               user_id,
               employee_id,
               ta,
-              discount,
-              earn,
+              discount: discount + earnValue,
               taad,
               earnings,
               serialNo,
             });
             if (newCommerce != null) {
               var commerce_id = newCommerce["id"],
+                service_id = id,
                 saleService,
                 sales = [],
                 saleBody = {
                   commerce_id,
+                  service_id,
                   earnings,
                   verify: false,
                 };
@@ -337,11 +323,43 @@ const serviceModel = require("../model/services.model"),
       res.status(code).json({ token });
     });
   },
+  uploadBill = async (req, res) => {
+    var { serialNo, userID, imageUrl, imageName, startUpload, filePath, dirpath } = req.body,
+      lang = getLanguage(req.body.language),
+      validateData = validationResult(req).array();
+    auth(res, lang, validateData, {}, async () => {
+      var exist = await userModel.findOne({ userID });
+      if (exist == null) {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      } else {
+        if (startUpload) {
+          body = { success: true, body: { serialNo, userID, imageUrl, imageName, startUpload, filePath, dirpath } };
+          code = 200;
+        } else {
+          body = {
+            success: false,
+            msg: lang.image_type_error,
+          };
+          code = 400;
+        }
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
   /*
     {
-      "serialNo": "Aquarius_38391",
-      "ta": 720000,
-      "language": "ar"
+      serialNo: 'bill_31160',
+      userID: 'user55845ywxhys',
+      imageUrl: 'https://watan.dev/image/user55845ywxhys/bill_31160_blog-1.jpg',
+      imageName: 'bill_31160_blog-1.jpg',
+      startUpload: true,
+      filePath: 'RDpcd29ya1xNRUdBXFByb2plY3RzXHdhdGFuXGFwaVxzcmNcdXRpbHMvLi4vc3RvcmFnZXMvaW1hZ2VzL3VzZXI1NTg0NXl3eGh5c2JpbGxfMzExNjBfYmxvZy0xLmpwZw==',
+      dirpath: 'RDpcd29ya1xNRUdBXFByb2plY3RzXHdhdGFuXGFwaVxzcmNcdXRpbHMvLi4vc3RvcmFnZXMvYmlsbHMvdXNlcjU1ODQ1eXd4aHlz'
     }
   */
   buy = async (req, res) => {
@@ -349,72 +367,94 @@ const serviceModel = require("../model/services.model"),
       lang = getLanguage(req.body.language),
       validateData = validationResult(req).array();
     auth(res, lang, validateData, { serialNo, ammount, image }, async () => {
-      var isImage = false,
-        failure = false;
-      if ((image != "", isbase64(image, { allowMime: true }))) {
-        isImage = true;
-      } else if (image != "") {
-        failure = true;
-      }
-      if (failure == false) {
-        var findCommerce = await commerceModel.findOne({ serialNo });
-        if (findCommerce == null) {
-          body = {
-            success: false,
-            msg: lang.not_found,
-          };
-          code = 404;
-        } else {
-          var ta = findCommerce["ta"];
-          if (ta == ammount) {
-            var commerce = [],
-              verifyNow = {};
-            verifiedSold = await serviceModel.findOne({
-              _id: findCommerce["service_id"],
-            });
-            if (verifiedSold != null) {
-              var dbCustomers = verifiedSold["commerce"];
-              if (dbCustomers.length > 0) {
-                dbCustomers.forEach((value) => {
-                  if (value["commerce_id"] == findCommerce["id"]) {
-                    verifyNow = value;
-                    verifyNow["verify"] = true;
-                    commerce.push(verifyNow);
-                  } else {
-                    commerce.push(value);
-                  }
+      var findCommerce = await commerceModel.findOne({ serialNo });
+      if (findCommerce == null) {
+        body = {
+          success: false,
+          msg: lang.not_found,
+        };
+        code = 404;
+      } else {
+        var ta = findCommerce["ta"];
+        if (ta == ammount) {
+          var commerce = [],
+            verifyNow = {};
+          verifiedSold = await serviceModel.findOne({
+            _id: findCommerce["service_id"],
+          });
+          if (verifiedSold != null) {
+            var dbCustomers = verifiedSold["commerce"];
+            if (dbCustomers.length > 0) {
+              dbCustomers.forEach((value) => {
+                if (value["commerce_id"] == findCommerce["id"]) {
+                  verifyNow = value;
+                  verifyNow["verify"] = true;
+                  commerce.push(verifyNow);
+                } else {
+                  commerce.push(value);
+                }
+              });
+              soldService = await serviceModel.findByIdAndUpdate(
+                {
+                  _id: verifiedSold["id"],
+                },
+                {
+                  commerce,
+                },
+                { new: true }
+              );
+              if (soldService != null) {
+                var boughtServices = await userModel.findOne({
+                  _id: findCommerce["user_id"],
                 });
-                soldService = await serviceModel.findByIdAndUpdate(
-                  {
-                    _id: verifiedSold["id"],
-                  },
-                  {
-                    commerce,
-                  },
-                  { new: true }
-                );
-                if (soldService != null) {
-                  var boughtServices = await userModel.findOne({
-                      _id: findCommerce["user_id"],
-                    }),
-                    verify = false,
-                    points = genPoints(findCommerce["earnings"]);
-                  commerce = [];
-                  dbCustomers = boughtServices["commerce"];
-                  if (dbCustomers.length > 0) {
-                    dbCustomers.forEach((value) => {
+                commerce = [];
+                dbCustomers = boughtServices["commerce"];
+                var includedSerial = false,
+                  haveImg = true;
+                if (dbCustomers.length > 0) {
+                  dbCustomers.forEach((value) => {
+                    if (serialNo != value["serialNo"]) {
                       commerce.push(value);
-                    });
-                  }
-                  var boughtBody = {
-                    commerce_id: findCommerce["id"],
-                    billImage: "",
-                    points,
-                    verify,
-                  };
-                  if (isImage) {
-                    boughtBody["billImage"] = image;
-                    boughtBody["verify"] = true;
+                    } else {
+                      if (value["billImage"]["imageUrl"] == undefined) {
+                        haveImg = false;
+                        includedSerial = true;
+                      } else {
+                        return includedSerial = true;
+                      }
+                    }
+                  });
+                }
+                if (includedSerial == false || haveImg == false) {
+                  var verify = false,
+                    earnValue = await getAppEarnings(),
+                    points = genPoints(findCommerce["earnings"], earnValue),
+                    boughtBody;
+                  if (image != undefined && image["startUpload"] == true) {
+                    verify = true;
+                    boughtBody = {
+                      serialNo,
+                      commerce_id: findCommerce["id"],
+                      service_id: findCommerce["service_id"],
+                      billImage: {
+                        imageUrl: image["imageUrl"],
+                        imageName: image["imageName"],
+                        filePath: image["filePath"],
+                        dirpath: image["dirpath"]
+                      },
+                      points,
+                      verify,
+                    };
+                  } else {
+                    verify = false;
+                    boughtBody = {
+                      serialNo,
+                      commerce_id: findCommerce["id"],
+                      service_id: findCommerce["service_id"],
+                      points,
+                      billImage: {},
+                      verify,
+                    };
                   }
                   commerce.push(boughtBody);
                   boughtServices = await userModel.findByIdAndUpdate(
@@ -438,9 +478,9 @@ const serviceModel = require("../model/services.model"),
                 } else {
                   body = {
                     success: false,
-                    msg: lang.unknown_error,
+                    msg: lang.ce
                   };
-                  code = 500;
+                  code = 400;
                 }
               } else {
                 body = {
@@ -459,17 +499,17 @@ const serviceModel = require("../model/services.model"),
           } else {
             body = {
               success: false,
-              msg: lang.bill_amount_error,
+              msg: lang.unknown_error,
             };
             code = 500;
           }
+        } else {
+          body = {
+            success: false,
+            msg: lang.bill_amount_error,
+          };
+          code = 500;
         }
-      } else {
-        body = {
-          success: false,
-          msg: lang.image_type_error,
-        };
-        code = 500;
       }
       token = genToken(body);
       res.status(code).json({ token });
@@ -482,5 +522,6 @@ module.exports = {
   deleteImages,
   getServices,
   sale,
+  uploadBill,
   buy,
 };

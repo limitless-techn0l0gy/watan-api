@@ -1,0 +1,63 @@
+:root {
+  --pC: #ffb434;
+  --hover: #303f6a;
+}
+.register,
+.login,
+.forgot {
+  height: 100vh;
+}
+.form {
+  padding: 20px 50px;
+  border-radius: 20px;
+  box-shadow: 0 0 50px #ffffff50;
+}
+a,
+li,
+.title {
+  cursor: pointer !important;
+}
+input,
+select {
+  min-width: 200px;
+  max-width: 400px;
+}
+main section article {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+.table {
+  padding: 10px !important;
+  border-radius: 10px !important;
+}
+.active {
+  color: var(--pC) !important;
+}
+.main-list {
+  padding: 10px 0px;
+  min-width: 20%;
+  max-width: 30%;
+  background-color: #212529;
+  min-height: 500px;
+}
+.main-body {
+  min-width: 70%;
+  max-width: 80%;
+  padding: 10px 0px;
+  min-height: 500px;
+}
+.list-non-padding {
+  padding: 0 !important;
+}
+.one-input-div {
+  position: relative;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+.one-input-btn {
+  position: absolute;
+  max-width: 300px !important;
+  border-radius: 0 0.375rem 0.375rem 0 !important;
+}

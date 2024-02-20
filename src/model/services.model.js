@@ -1,9 +1,34 @@
 const mongoose = require("mongoose"),
-  saleShema = mongoose.Schema(
+  imageSchema = mongoose.Schema({
+    imageUrl: {
+      type: String,
+    },
+    imageName: {
+      type: String,
+    },
+    filePath: {
+      type: String,
+    },
+    dirpath: {
+      type: String,
+    },
+    date: { type: Date, default: Date.now },
+  }),
+  saleSchema = mongoose.Schema(
     {
+      serialNo: {
+        type: String,
+        unique: true,
+        required: true,
+      },
       commerce_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "commerce",
+        required: true,
+      },
+      service_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "services",
         required: true,
       },
       earnings: {
@@ -43,6 +68,14 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
+      country: {
+        type: String,
+        required: true,
+      },
+      governorate: {
+        type: String,
+        required: true,
+      },
       location: {
         type: String,
         required: true,
@@ -50,7 +83,7 @@ const mongoose = require("mongoose"),
       employees: {
         type: Number,
         default: 0,
-        required: true, 
+        required: true,
       },
       availableEmployees: [
         { type: mongoose.Schema.Types.ObjectId, ref: "employees" },
@@ -59,16 +92,8 @@ const mongoose = require("mongoose"),
         type: Number,
         default: 0,
       },
-      commerce: [saleShema],
-      license: {
-        type: String,
-        required: true,
-      },
+      commerce: [saleSchema],
       discount: {
-        type: Number,
-        required: true,
-      },
-      earn: {
         type: Number,
         required: true,
       },
@@ -76,45 +101,8 @@ const mongoose = require("mongoose"),
         type: String,
         required: true,
       },
-      logo: {
-        type: {
-          imageUrl: {
-            type: String,
-          },
-          imageName: {
-            type: String,
-          },
-          filePath: {
-            type: String,
-          },
-          dirpath: {
-            type: String,
-          },
-          date: { type: Date, default: Date.now },
-        },
-        required: false,
-      },
-      images: [
-        {
-          imageUrl: {
-            type: String,
-            required: true,
-          },
-          imageName: {
-            type: String,
-            required: true,
-          },
-          filePath: {
-            type: String,
-            required: true,
-          },
-          dirpath: {
-            type: String,
-            required: true,
-          },
-          date: { type: Date, default: Date.now },
-        },
-      ],
+      logo: imageSchema,
+      images: [imageSchema],
     },
     { timestamps: true }
   ),

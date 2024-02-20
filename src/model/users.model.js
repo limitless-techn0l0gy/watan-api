@@ -1,13 +1,41 @@
 const mongoose = require("mongoose"),
+  billSchema = mongoose.Schema(
+    {
+      imageUrl: {
+        type: String,
+      },
+      imageName: {
+        type: String,
+      },
+      filePath: {
+        type: String,
+      },
+      dirpath: {
+        type: String,
+      },
+    },
+    { timestamps: true }
+  ),
   buySchema = mongoose.Schema(
     {
+      serialNo: {
+        type: String,
+        unique: true,
+        required: true,
+      },
       commerce_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "commerce",
         required: true,
       },
+      service_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "services",
+        required: true,
+      },
       billImage: {
-        type: String,
+        type: billSchema,
+        required: false,
       },
       points: {
         type: Number,
@@ -73,6 +101,9 @@ const mongoose = require("mongoose"),
         required: true,
       },
       commerce: [buySchema],
+      fav: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "services" },
+      ],
     },
     { timestamps: true }
   ),

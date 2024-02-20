@@ -32,5 +32,6 @@ var tur = {
   tryagain: "tekrar deneyin",
   bill_amount_error:
     "Girdiğiniz fatura tutarı yanlış.Hesabınızı engellemek ve puanlarınızı kaybetmek için lütfen doğru numarayı girin.",
+  empty_fav: "Henüz favorilerinize herhangi bir işletme eklemediniz",
 };
 module.exports = tur;

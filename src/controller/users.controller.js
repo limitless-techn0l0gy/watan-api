@@ -7,12 +7,6 @@ const userModel = require("../model/users.model"),
   getLanguage = require("../localization/language"),
   { genUserID } = require("../functions/userid"),
   { auth, hashString, compareString } = require("../functions/auth"),
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "language": "ar"
-    }
-  */
   verify = async (req, res) => {
     var { email } = req.body,
       reqType = req.params.type,
@@ -55,33 +49,44 @@ const userModel = require("../model/users.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "name":"",
-      "nickname":"",
-      "email":"",
-      "phone":"",
-      "password":"",
-      "gender":"",
-      "country":"",
-      "governorate":"",
-      "currency":"",
-      "points":""
-    }
-  */
+  uid = async (req, res) => {
+    var {
+      userId
+    } = req.body,
+      validateData = validationResult(req).array(),
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { userId }, async () => {
+      var exist = await model.findOne({ userID: userId });
+      if (exist) {
+        body = {
+          success: true,
+          data: exist
+        };
+        code = 200;
+      } else {
+        body = {
+          success: false,
+          msg: lang.not_found
+        };
+        code = 404;
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
+  },
   register = async (req, res) => {
     var {
-        name,
-        nickname,
-        email,
-        phone,
-        password,
-        gender,
-        country,
-        governorate,
-        currency,
-        points,
-      } = req.body,
+      name,
+      nickname,
+      email,
+      phone,
+      password,
+      gender,
+      country,
+      governorate,
+      currency,
+      points,
+    } = req.body,
       validateData = validationResult(req).array(),
       lang = getLanguage(req.body.language);
     auth(
@@ -109,23 +114,15 @@ const userModel = require("../model/users.model"),
           };
           code = 200;
         } else {
-          var checkPhone = await model.find(),
-            existPhone = false;
-          if (checkPhone != null && checkPhone.length > 0) {
-            checkPhone.forEach((value, index, array) => {
-              if (value["phone"]["number"] == phone["number"]) {
-                existPhone = true;
-              }
+          var isUnique = true;
+          checkPhone = await model.find();
+          if (checkPhone.length > 0) {
+            checkPhone.forEach((value) => {
+              if (phone["number"] == value["phone"]["number"]) isUnique = false;
             });
           }
-          if (existPhone == true) {
-            body = {
-              success: false,
-              msg: lang.exist_number,
-            };
-            code = 200;
-          } else {
-            var userID = await genUserID(name, email),
+          if (isUnique) {
+            var userID = await genUserID(email),
               hashPassword = await hashString(password);
             password = hashPassword;
             var newUser = await model.create({
@@ -140,6 +137,7 @@ const userModel = require("../model/users.model"),
               governorate,
               currency,
               points,
+              fav: [],
             });
             if (newUser != null) {
               body = {
@@ -154,6 +152,12 @@ const userModel = require("../model/users.model"),
               };
               code = 500;
             }
+          } else {
+            body = {
+              success: false,
+              msg: lang.exist_number,
+            };
+            code = 401;
           }
         }
         token = genToken(body);
@@ -161,12 +165,6 @@ const userModel = require("../model/users.model"),
       }
     );
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-    }
-  */
   login = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -199,12 +197,6 @@ const userModel = require("../model/users.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-    }
-  */
   forgot = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -252,21 +244,36 @@ const userModel = require("../model/users.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "id": "6549f376000cd9fda4f85146",
-    }
-  */
   getInfo = async (req, res) => {
     var { id } = req.body,
       validateData = validationResult(req).array(),
       lang = getLanguage(req.body.language);
     auth(res, lang, validateData, { id }, async () => {
-      var userData = await model.findById({ _id: id });
+      var userData =
+        await model.findById({ _id: id }).populate('commerce.commerce_id').populate('commerce.service_id');
       if (userData == null) {
         body = { success: false, msg: lang.not_found };
         code = 404;
       } else {
+        if (userData["commerce"].length > 0) {
+          var newPoints = 0,
+            lastPoints = userData["points"];
+          userData["commerce"].forEach((value, index, array) => {
+            newPoints += value["points"];
+          });
+          if (lastPoints != newPoints) {
+            var userDataUpdate = await model.findOneAndUpdate(
+              { _id: id },
+              { points: newPoints },
+              { new: true }
+            );
+            if (userDataUpdate != null) {
+              userData =
+                await model.findById({ _id: id }).populate('commerce.commerce_id').populate('commerce.service_id');
+            }
+          }
+        }
+        console.log(userData);
         body = {
           success: true,
           data: userData,
@@ -297,6 +304,67 @@ const userModel = require("../model/users.model"),
       token = genToken(body);
       res.status(code).json({ token });
     });
+  },
+  fav = async (req, res) => {
+    var { id, service_id } = req.body,
+      validateData = validationResult(req).array(),
+      reqType = req.params.type,
+      lang = getLanguage(req.body.language);
+    auth(res, lang, validateData, { id, service_id, reqType }, async () => {
+      var userData = await model.findOne({ _id: id }).populate('fav');
+      if (userData == null) {
+        body = { success: false, msg: lang.not_found };
+        code = 404;
+      } else {
+        if (reqType == "get") {
+          if (userData["fav"].length > 0) {
+            body = { success: true, data: userData["fav"] };
+            code = 200;
+          } else {
+            body = { success: false, msg: lang.empty_fav };
+            code = 404;
+          }
+        } else {
+          var newFav = [], exist = false;
+          if (userData["fav"].length > 0) {
+            if (reqType != "remove") {
+              userData["fav"].forEach(id => {
+                if (id == service_id) {
+                  exist = true;
+                }
+                newFav.push(id);
+              });
+            } else {
+              userData["fav"].forEach(id => { if (id["id"] != service_id) { newFav.push(id); } });
+            }
+          }
+          if (reqType == "add" && exist == false) {
+            newFav.push(service_id);
+          }
+          if (exist == false) {
+            var updateUserData = await model.findByIdAndUpdate({ _id: id }, { fav: newFav }, { new: true });
+            if (updateUserData != null) {
+              body = { success: true, data: updateUserData, };
+              code = 200;
+            } else {
+              body = {
+                success: false,
+                msg: lang.unknown_error,
+              };
+              code = 500;
+            }
+          } else {
+            body = {
+              success: false,
+              msg: lang.exist,
+            };
+            code = 200;
+          }
+        }
+      }
+      token = genToken(body);
+      res.status(code).json({ token });
+    });
   };
 
-module.exports = { verify, register, login, forgot, getInfo, deleteAccount };
+module.exports = { verify, uid, register, login, forgot, getInfo, deleteAccount, fav };

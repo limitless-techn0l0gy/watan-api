@@ -101,12 +101,12 @@ const nodeMailer = require("nodemailer"),
         lang
       );
       const transport = nodeMailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: myEmail,
-            pass: myPass,
-          },
-        }),
+        service: "gmail",
+        auth: {
+          user: myEmail,
+          pass: myPass,
+        },
+      }),
         mailOptions = {
           from: myEmail,
           to: userEmail,
@@ -134,12 +134,12 @@ const nodeMailer = require("nodemailer"),
           lang
         );
       const transport = nodeMailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: myEmail,
-            pass: myPass,
-          },
-        }),
+        service: "gmail",
+        auth: {
+          user: myEmail,
+          pass: myPass,
+        },
+      }),
         mailOptions = {
           from: myEmail,
           to: userEmail,

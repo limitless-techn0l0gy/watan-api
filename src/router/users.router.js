@@ -2,11 +2,13 @@ const usersRouter = require("express").Router(),
   check = require("express-validator").check,
   {
     verify,
+    uid,
     register,
     login,
     forgot,
     getInfo,
     deleteAccount,
+    fav,
   } = require("../controller/users.controller");
 // verify
 usersRouter.post(
@@ -14,6 +16,13 @@ usersRouter.post(
   check("email").not().isEmpty().isEmail(),
   check("language").not().isEmpty().isString(),
   verify
+);
+// checkUserId
+usersRouter.post(
+  "/uid",
+  check("userId").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  uid
 );
 // register
 usersRouter.post(
@@ -69,5 +78,13 @@ usersRouter.post(
   check("id").not().isEmpty().isString(),
   check("language").not().isEmpty().isString(),
   deleteAccount
+);
+// fav
+usersRouter.post(
+  "/fav/:type",
+  check("id").not().isEmpty().isString(),
+  check("service_id").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  fav
 );
 module.exports = usersRouter;

@@ -3,7 +3,7 @@ const MCModel = require("../model/membershipcodes.model"),
   agentModel = require("../model/agents.model"),
   serviceModel = require("../model/services.model"),
   validationResult = require("express-validator").validationResult,
-  { mcSend, genCode } = require("../mail/mail"),
+  { mcSend } = require("../mail/mail"),
   getLanguage = require("../localization/language"),
   { auth } = require("../functions/auth"),
   { genToken } = require("../config/jwt"),
@@ -21,7 +21,7 @@ const MCModel = require("../model/membershipcodes.model"),
         createMC,
         existMC = await MCModel.findOne({ email });
       if (existMC == null) {
-        mc = await genMC(mc, email);
+        mc = await genMC(email);
         createMC = await MCModel.create({
           MC: mc,
           email,
@@ -80,7 +80,7 @@ const MCModel = require("../model/membershipcodes.model"),
       validateData,
       { email, businessName },
       async () => {
-        
+
       }
     );
   },
@@ -113,14 +113,4 @@ const MCModel = require("../model/membershipcodes.model"),
       }
     );
   };
-// setInterval(async () => {
-//   var checkMC = await MCModel.find();
-//   if (checkMC != null) {
-//     checkMC.forEach(async (value) => {
-//       if (value["agent_id"] == undefined || value["agent_id"] == null) {
-//         await MCModel.findOneAndDelete({ email: value["email"] });
-//       }
-//     });
-//   }
-// }, 60 * 60 * 24 * 30);
 module.exports = { render, mcControll, renew, mcDelete };

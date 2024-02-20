@@ -9,12 +9,6 @@ const agentModel = require("../model/agents.model"),
   { send, genCode } = require("../mail/mail"),
   getLanguage = require("../localization/language"),
   { auth, hashString, compareString } = require("../functions/auth"),
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "language": "ar"
-    }
-  */
   verify = async (req, res) => {
     var { email } = req.body,
       reqType = req.params.type,
@@ -57,12 +51,6 @@ const agentModel = require("../model/agents.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "MC": "watan_YWxhYXF1d",
-      "email": "alaaqutfa.work@gmail.com",
-    }
-  */
   checkMC = async (req, res) => {
     var { MC, email } = req.body,
       validateData = validationResult(req).array(),
@@ -92,51 +80,25 @@ const agentModel = require("../model/agents.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "MC": "agent52092YWxpQ",
-      "email": "ali@qutfa.com",
-      "password": "A123456a@",
-      "businessName": "Aquarius",
-      "desc": "Aquarius Aquarius Aquarius Aquarius Aquarius Aquarius Aquarius",
-      "nameowner": "Alaa",
-      "nicknameowner": "Qutfa",
-      "employees": "5",
-      "license": "sxd1234s",
-      "discount": "50",
-      "earn": "15",
-      "country": "Iraq",
-      "governorate": "Erbil",
-      "services": "Resturants",
-      "currency": "usd",
-      "location": "https://www.map.com",
-      "firstNumber": "+9647517960648",
-      "secondNumber": "+9647511796291",
-      "logo": [],
-      "language": "ar"
-    }
-  */
   register = async (req, res) => {
     var {
-        MC,
-        email,
-        password,
-        businessName,
-        desc,
-        nameowner,
-        nicknameowner,
-        employees,
-        license,
-        discount,
-        earn,
-        country,
-        governorate,
-        services,
-        currency,
-        location,
-        numbers,
-        logo,
-      } = req.body,
+      MC,
+      email,
+      password,
+      businessName,
+      desc,
+      nameowner,
+      nicknameowner,
+      employees,
+      discount,
+      country,
+      governorate,
+      services,
+      currency,
+      location,
+      numbers,
+      logo,
+    } = req.body,
       validateData = validationResult(req).array(),
       lang = getLanguage(req.body.language);
     auth(
@@ -152,9 +114,7 @@ const agentModel = require("../model/agents.model"),
         nameowner,
         nicknameowner,
         employees,
-        license,
         discount,
-        earn,
         country,
         governorate,
         services,
@@ -192,39 +152,46 @@ const agentModel = require("../model/agents.model"),
                 password,
                 nameowner,
                 nicknameowner,
-                country,
-                governorate,
               });
               if (newAgent != null) {
                 var newService = await serviceModel.create({
-                    agent_id: newAgent["id"],
-                    businessName,
-                    desc,
-                    numbers,
-                    services,
-                    employees,
-                    license,
-                    location,
-                    discount,
-                    earn,
-                    currency,
-                    logo,
-                  }),
-                  usedMC = await MCModel.findOneAndUpdate(
+                  agent_id: newAgent["id"],
+                  businessName,
+                  desc,
+                  numbers,
+                  services,
+                  country,
+                  governorate,
+                  employees,
+                  location,
+                  discount,
+                  currency,
+                  logo,
+                });
+                if (newService != null) {
+                  var usedMC = await MCModel.findOneAndUpdate(
                     { MC },
                     {
                       agent_id: newAgent["id"],
                     },
                     { new: true }
                   );
-                if ((newService != null, usedMC != null)) {
-                  body = {
-                    success: true,
-                    id: newAgent["id"],
-                    MC,
-                    service: newService["id"],
-                  };
-                  code = 200;
+                  if (usedMC != null) {
+                    body = {
+                      success: true,
+                      id: newAgent["id"],
+                      MC,
+                      service: newService["id"],
+                    };
+                    code = 200;
+                  }
+                  else {
+                    body = {
+                      success: false,
+                      msg: lang.unknown_error,
+                    };
+                    code = 500;
+                  }
                 } else {
                   body = {
                     success: false,
@@ -260,11 +227,6 @@ const agentModel = require("../model/agents.model"),
       }
     );
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com"
-    }
-  */
   checkEmployees = async (req, res) => {
     var { email } = req.body,
       validateData = validationResult(req).array(),
@@ -299,12 +261,6 @@ const agentModel = require("../model/agents.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-    }
-  */
   login = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -313,8 +269,8 @@ const agentModel = require("../model/agents.model"),
       var agentCheck = await model.findOne({ email });
       if (agentCheck != null) {
         var serviceData = await serviceModel.findOne({
-            agent_id: agentCheck["id"],
-          }),
+          agent_id: agentCheck["id"],
+        }),
           isMatch = await compareString(password, agentCheck["password"]);
         if (isMatch && serviceData != null) {
           body = {
@@ -342,12 +298,6 @@ const agentModel = require("../model/agents.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "email": "alaaqutfa.work@gmail.com",
-      "password": "A123456a@",
-    }
-  */
   forgot = async (req, res) => {
     var { email, password } = req.body,
       validateData = validationResult(req).array(),
@@ -395,11 +345,6 @@ const agentModel = require("../model/agents.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      "id": "6549f376000cd9fda4f85146",
-    }
-  */
   getInfo = async (req, res) => {
     var { id } = req.body,
       validateData = validationResult(req).array(),
@@ -411,10 +356,10 @@ const agentModel = require("../model/agents.model"),
         code = 404;
       } else {
         var agentService = await serviceModel
-            .findOne({
-              agent_id: agentData["_id"],
-            })
-            .populate({ path: "availableEmployees" }),
+          .findOne({
+            agent_id: agentData["_id"],
+          })
+          .populate({ path: "availableEmployees" }),
           agentMC = await MCModel.findOne({ agent_id: agentData["_id"] });
         if (agentService != null && agentMC != null) {
           body = {
@@ -447,8 +392,8 @@ const agentModel = require("../model/agents.model"),
         code = 404;
       } else {
         var agentService = await serviceModel.findOne({
-            agent_id: agentData["_id"],
-          }),
+          agent_id: agentData["_id"],
+        }),
           agentMC = await MCModel.findOne({ agent_id: agentData["_id"] });
         if (agentService != null && agentMC != null) {
           var availableEmployees = agentService["availableEmployees"],

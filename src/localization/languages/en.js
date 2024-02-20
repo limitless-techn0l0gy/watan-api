@@ -32,6 +32,7 @@ const en = {
   tryagain: "try again",
   bill_amount_error:
     "The bill amount you entered is incorrect. Please enter the correct number to avoid blocking your account and losing your points.",
+  empty_fav: "You have not added any business to your favorites yet",
 };
 module.exports = en;
 

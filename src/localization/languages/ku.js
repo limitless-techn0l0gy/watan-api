@@ -1,0 +1,37 @@
+const ku = {
+  server: "The server is working...",
+  language: "English",
+  ea: "Authentication failed. Please login with valid credentials.",
+  ce: "Please check your information and try again",
+  exist: "Already exists",
+  exist_number: "Check phone numbers",
+  unknown_error: "Something unexpected happened",
+  employees_maximum: "The number of employees is maximum",
+  images_maximum: "The number of images is maximum",
+  image_type_error: "The image you entered is invalid",
+  used_password: "Please enter a password that you have not used before",
+  updated: "updated successfully",
+  not_found: "Not found",
+  password_not_correct:
+    "Authentication failed. Please login with valid credentials.",
+  mc_check: "Check the membership code",
+  register_msgSubject: "Create new account",
+  forgot_msgSubject: "Password reset request",
+  msgDesc: "- Here is your verification code :",
+  msgNote: "Please make sure you never share this code with anyone.",
+  privacy: "Privacy policy",
+  conditions: `Terms &amp; Conditions`,
+  mc_msgSubject: "Request a membership code",
+  mc_msgDesc: "- Here is your membership code :",
+  mc_change_msg:
+    "You have a membership code for this email. If you want to change it, you must first delete the previous code and then create a new code.",
+  deleted: "Deleted successfully",
+  empty_services: "Sorry, this service is not available yet",
+  saleMsg: "Successfully sold, awaiting verification",
+  buyMsg: "Purchase completed successfully, awaiting verification",
+  tryagain: "try again",
+  bill_amount_error:
+    "The bill amount you entered is incorrect. Please enter the correct number to avoid blocking your account and losing your points.",
+  empty_fav: "You have not added any business to your favorites yet",
+};
+module.exports = ku;

@@ -23,8 +23,6 @@ employeesRouter.post(
   check("password").isLength({ min: 8 }),
   check("name").not().isEmpty().isString(),
   check("nickname").not().isEmpty().isString(),
-  check("country").not().isEmpty().isString(),
-  check("governorate").not().isEmpty().isString(),
   check("language").not().isEmpty().isString(),
   register
 );

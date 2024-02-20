@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watan - Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+  <link rel="stylesheet" href="/css//icons/all/all.min.css" />
+  <link href="/css/vendor/aos/aos.css" rel="stylesheet">
+  <link href="/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/css/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="/css/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="/css/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="/css/index.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+
+<body>
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top  header-transparent">
+    <div class="container d-flex align-items-center justify-content-between">
+      <div class="logo">
+        <h1><a href="/">WATAN</a></h1>
+        <!-- <a href="/"><img src="../img/logo.png" alt="" class="img-fluid"></a> -->
+      </div>
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link nav-link-watan active">Home</a></li>
+          <li><a class="nav-link nav-link-watan">Admin</a></li>
+          <li><a class="nav-link nav-link-watan">Agents</a></li>
+          <li><a class="nav-link nav-link-watan">Users</a></li>
+          <li><a class="nav-link nav-link-watan">Commerce</a></li>
+          <li><a class="log-out getstarted" href="/">Log Out</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+    </div>
+  </header><!-- End Header -->
+  <!-- ======= Main ======= -->
+  <main>
+    <section class="container">
+      <article id="home" class="main-section">
+        <div class="main-list">
+          <h3 class="text-white text-center">Home</h3>
+          <ul class="list-non-padding">
+            <li class="nav-link text-center link-watan-home active">Admin Info</li>
+          </ul>
+        </div>
+        <div class="main-body">
+          <div class="container">
+            <div class="section-watan-home info-card-title">
+              <h1 class="title">
+                Welcome
+                <span id="userName" class="badge badge-secondary bg-dark-subtle">
+                  Admin
+                </span>
+              </h1>
+            </div>
+          </div>
+      </article>
+      <article id="admin" class="main-section">
+        <div class="main-list">
+          <h3 class="text-white text-center">Admin</h3>
+          <ul class="list-non-padding">
+            <li class="nav-link text-center link-watan-admin active">Admins Panel</li>
+            <li class="nav-link text-center link-watan-admin">Add Admin</li>
+          </ul>
+        </div>
+        <div class="main-body">
+          <div class="container">
+            <div class="section-watan-admin">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Panel
+                </span>
+              </h1>
+            </div>
+            <div class="section-watan-admin">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Add
+                </span>
+              </h1>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article id="agents" class="main-section">
+        <div class="main-list">
+          <h3 class="text-white text-center">Agents</h3>
+          <ul class="list-non-padding">
+            <li class="nav-link text-center link-watan-agent active">Agent cash accounts</li>
+            <li id="agentDeleteOrdersBtn" class="nav-link text-center link-watan-agent">Account Delete Order</li>
+            <li class="nav-link text-center link-watan-agent">Edit App Dollar</li>
+            <li class="nav-link text-center link-watan-agent">Edit App Earnings</li>
+          </ul>
+        </div>
+        <div class="main-body">
+          <div class="container">
+            <div id="agentCashAccounts" class="section-watan-agent">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Agent cash accounts
+                </span>
+              </h1>
+            </div>
+            <div id="agentDeleteOrders" class="section-watan-agent">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Account Delete Order
+                </span>
+              </h1>
+              <div id="agentDeleteOrdersDiv"></div>
+            </div>
+            <div class="section-watan-agent editdollar mb-2">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Edit App Dollar
+                </span>
+              </h1>
+              <form action="/cashing/earning" method="POST" id="dollarForm">
+                <div class="form-group mb-2">
+                  <label for="dollarpassword">Password :</label>
+                  <input type="password" class="form-control login-data" name="password" id="dollarpassword" required>
+                </div>
+                <div class="form-group Currency mb-2">
+                  <label for="Currency" class="form-label">Currency :</label>
+                  <select class="form-select" name="Currency" id="Currency">
+                    <option value="not">
+                      Change site Currency
+                    </option>
+                    <option value="IQD">
+                      IQD
+                    </option>
+                    <option value="TRY">
+                      TRY
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group d-flex justify-content-center align-items-start flex-column">
+                  <label for="dollarInput" class="mb-2">Current Value : <span
+                      class="badge badge-secondary bg-warning badge-dollar-value">0</span></label>
+                  <div class="form-group one-input-div">
+                    <input type="number" min="5" class="form-control w-25" id="dollarInput"
+                      aria-describedby="dollarHelp" required>
+                    <button type="submit" class="btn btn-primary one-input-btn">
+                      Edit
+                    </button>
+                  </div>
+                  <div class="alert alert-danger mt-2 d-none one-input-alert-currency" role="alert"></div>
+                </div>
+              </form>
+            </div>
+            <div class="section-watan-agent editEarnings">
+              <h1 class="title">
+                <span class="badge badge-secondary bg-dark-subtle">
+                  Edit App Earnings
+                </span>
+              </h1>
+              <form action="/cashing/earning" method="GET" id="earningsForm">
+                <div class="form-group mb-2">
+                  <label for="password">Password :</label>
+                  <input type="password" class="form-control login-data" name="password" id="password" required>
+                  <div class="alert alert-danger mt-2 d-none" role="alert">
+                  </div>
+                </div>
+                <div class="form-group d-flex justify-content-center align-items-start flex-column">
+                  <label for="earningsInput" class="mb-2">Current Value : <span
+                      class="badge badge-secondary bg-warning badge-earning-value">0</span></label>
+                  <div class="form-group one-input-div">
+                    <input type="number" min="5" class="form-control w-25" id="earningsInput"
+                      aria-describedby="earningHelp" required>
+                    <button type="submit" class="btn btn-primary one-input-btn">
+                      Edit
+                    </button>
+                  </div>
+                  <div class="alert alert-danger mt-2 d-none one-input-alert" role="alert"></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article id="users" class="main-section">
+        <div class="main-list">
+          <h3 class="text-white text-center">Users</h3>
+        </div>
+        <div class="main-body"></div>
+      </article>
+      <article id="commerce" class="main-section">
+        <div class="main-list">
+          <h3 class="text-white text-center">Commerce</h3>
+        </div>
+        <div class="main-body"></div>
+      </article>
+    </section>
+  </main><!-- End Main -->
+  <!-- ======= Aside ======= -->
+  <aside>
+    <section class="container">
+      <div class="language">
+        <label for="language" class="form-label">Language :</label>
+        <select class="form-select" name="language" id="language">
+          <option value="not">
+            Change site language
+          </option>
+          <option value="en">
+            English
+          </option>
+          <option value="ar">
+            Arabic
+          </option>
+          <option value="ku">
+            Kurdish
+          </option>
+          <option value="tur">
+            Turkish
+          </option>
+        </select>
+        <div class="alert alert-danger mt-2 d-none" role="alert">
+        </div>
+      </div>
+    </section>
+  </aside><!-- End Aside -->
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <h4>Join Our Newsletter</h4>
+            <form action="" method="post">
+              <input type="email" name="email"><input type="submit" value="Subscribe">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6 footer-contact">
+            <h3>WATAN</h3>
+            <p>
+              Abu Bakr Ahmed Obaid Bin Touq Al Marri Building<br>
+              Deira Naif Area<br>
+              Office No. A 5-406, UAE<br><br>
+              <strong>Phone:</strong> +971 (0) 058 158 7300<br>
+              <strong>Email:</strong> info@watan.dev<br>
+            </p>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="/">Home</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="/">About us</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="/conditions">Terms of service</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="/privacy">Privacy policy</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>Our Services</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Restaurants</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Medical Center</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Transportation & travel</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Commercial Store</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Money Management</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Gas Stations</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Online stores</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Maintenance Services</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Installments</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Living</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Entertainment</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>Our Social Networks</h4>
+            <div class="social-links mt-3">
+              <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+              <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+              <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+              <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+              <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container py-4">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Watan</span></strong>. All Rights Reserved
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+  <script src="/css/vendor/aos/aos.js"></script>
+  <script src="/css/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/css/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="/css/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="/css/vendor/php-email-form/validate.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

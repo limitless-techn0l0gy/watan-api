@@ -1,7 +1,6 @@
 const serviceRouter = require("express").Router(),
-  isbase64 = require("is-base64"),
   check = require("express-validator").check,
-  { uploadImg } = require("../utils/multer"),
+  { uploadImg, uploadBills } = require("../utils/multer"),
   {
     uploadImages,
     getImages,
@@ -9,6 +8,7 @@ const serviceRouter = require("express").Router(),
     deleteImages,
     getServices,
     sale,
+    uploadBill,
     buy,
   } = require("../controller/services.controller"),
   imagesPath = "/images";
@@ -46,7 +46,6 @@ serviceRouter.post(
   deleteImages
 );
 // Get Services :
-// todo: check this
 serviceRouter.post(
   "/get",
   check("services").not().isEmpty().isString(),
@@ -60,9 +59,19 @@ serviceRouter.post(
   "/sale",
   check("id").not().isEmpty().isString(),
   check("userID").not().isEmpty().isString(),
+  check("employee_id").not().isEmpty().isString(),
   check("ta").not().isEmpty().isInt(),
   check("language").not().isEmpty().isString(),
   sale
+);
+// Upload bill :
+serviceRouter.post(
+  imagesPath + "/bill/upload",
+  uploadBills.single("image"),
+  check("serialNo").not().isEmpty().isString(),
+  check("userID").not().isEmpty().isString(),
+  check("language").not().isEmpty().isString(),
+  uploadBill,
 );
 // buy :
 serviceRouter.post(
