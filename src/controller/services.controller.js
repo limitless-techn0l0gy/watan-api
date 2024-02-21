@@ -351,17 +351,6 @@ const serviceModel = require("../model/services.model"),
       res.status(code).json({ token });
     });
   },
-  /*
-    {
-      serialNo: 'bill_31160',
-      userID: 'user55845ywxhys',
-      imageUrl: 'https://watan.dev/image/user55845ywxhys/bill_31160_blog-1.jpg',
-      imageName: 'bill_31160_blog-1.jpg',
-      startUpload: true,
-      filePath: 'RDpcd29ya1xNRUdBXFByb2plY3RzXHdhdGFuXGFwaVxzcmNcdXRpbHMvLi4vc3RvcmFnZXMvaW1hZ2VzL3VzZXI1NTg0NXl3eGh5c2JpbGxfMzExNjBfYmxvZy0xLmpwZw==',
-      dirpath: 'RDpcd29ya1xNRUdBXFByb2plY3RzXHdhdGFuXGFwaVxzcmNcdXRpbHMvLi4vc3RvcmFnZXMvYmlsbHMvdXNlcjU1ODQ1eXd4aHlz'
-    }
-  */
   buy = async (req, res) => {
     var { serialNo, ammount, image } = req.body,
       lang = getLanguage(req.body.language),
