@@ -359,8 +359,9 @@ const agentModel = require("../model/agents.model"),
           .findOne({
             agent_id: agentData["_id"],
           })
-          .populate({ path: "availableEmployees" }),
+          .populate("availableEmployees").populate("commerce.commerce_id"),
           agentMC = await MCModel.findOne({ agent_id: agentData["_id"] });
+        console.log(agentService);
         if (agentService != null && agentMC != null) {
           body = {
             success: true,

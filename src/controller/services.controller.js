@@ -258,12 +258,11 @@ const serviceModel = require("../model/services.model"),
             });
             if (newCommerce != null) {
               var commerce_id = newCommerce["id"],
-                service_id = id,
                 saleService,
                 sales = [],
                 saleBody = {
                   commerce_id,
-                  service_id,
+                  userID,
                   earnings,
                   verify: false,
                 };

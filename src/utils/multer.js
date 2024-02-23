@@ -62,6 +62,7 @@ const multer = require("multer"),
     },
   }),
   checkFileType = (req, file, cb) => {
+    console.log(file.originalname);
     const allowedExtensions = /jpeg|jpg|png|gif|octet-stream/;
     const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedExtensions.test(file.mimetype);
@@ -76,7 +77,7 @@ const multer = require("multer"),
   uploadImg = multer({
     storage: storageImages, limits: { fileSize: "5mb" },
     fileFilter: (req, file, cb) => {
-      checkFileType(file, cb);
+      checkFileType(req, file, cb);
     }
   }),
   uploadBills = multer({

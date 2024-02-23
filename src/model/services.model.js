@@ -26,9 +26,8 @@ const mongoose = require("mongoose"),
         ref: "commerce",
         required: true,
       },
-      service_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "services",
+      userID: {
+        type: String,
         required: true,
       },
       earnings: {
